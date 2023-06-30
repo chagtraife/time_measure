@@ -36,12 +36,21 @@ sbit RESET  = P3^7;
 unsigned int led7[10] = { 0x84, 0x9F, 0xC8, 0x89, 0x93, 0xA1, 0xA0, 0x8F, 0x80, 0x81 };
 
 // global variable define
-bit range = 0;
-unsigned int time = 1230;
+// range_mode == 1 --> 99,99 -> f = 100,  time count = 10ms,   timerValue = 0x2710 = 10000
+// range_mode == 0 --> 9,999 -> f = 1000, time count = 1ms,    timerValue = 0x03E8 = 1000
+bit range_mode = 1;
 unsigned int factor = 100;
+
+unsigned int time = 0;
 unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
 unsigned int pointIdx = 0;
 unsigned int digitIdx = 1; // range in 1-4
+
+void init_TC0(void);
+void init_TC1(void);
+void setTimer1Value(void);
+void init_GPIO(void);
+
 
 void readResetButton(void);
 void readRangeSW(void);
@@ -56,17 +65,11 @@ void delay_ms(unsigned int itime);
 
 void main (void)
 {
-	ET0 = 1;  // cho phep ngat timer 0
-	TMOD=0x02;//Sd Timer1 che do 8bit tu nap lai (ngat timer)
-	TH0=TL0=0x1F;//Nap gia tri bat dau 8bit
-	TR0=1;//Khoi dong timer0
-	ET0=1;//Ngat timer0
-	
-	EA = 1;   // cho phep ngat toan cuc
-	
-	RESET = 0;
-	COM = 0;
-	RANGE = 1;
+	readRangeSW();
+	init_GPIO();
+	init_TC0();
+	init_TC1();
+
 	update();
 	while (1)
 	{
@@ -76,32 +79,75 @@ void main (void)
 	}
 }
 
+void init_GPIO(void)
+{
+	RESET = 0;
+	COM = 1;
+	RANGE_SW = 1;
+}
+
+// used for display
+void init_TC0(void)
+{
+	ET0 = 1;         // cho phep ngat timer 0
+	TMOD = 0x02;    //Sd Timer0 che do 8bit tu nap lai (ngat timer)
+	TH0 = 0x1F;      //Nap gia tri bat dau 8bit
+	TL0 = 0x1F;
+	TR0 = 1;         //Khoi dong timer0
+	ET0 = 1;         //Ngat timer0
+	EA = 1;          // cho phep ngat toan cuc
+}
+
+//used for count
+void init_TC1(void)
+{
+	ET1 = 1;         // cho phep ngat timer 1
+	TMOD |= 0x10;    //Use Timer1 at 16-bit timer mode.
+	setTimer1Value();
+	TR1 = 1;         //Khoi dong timer1
+	ET1 = 1;         //Ngat timer1
+	EA = 1;          // cho phep ngat toan cuc
+}
+
+void setTimer1Value(void)
+{
+	if (range_mode == 1) {
+		//range_mode == 1 --> 99,99 -> f = 100,  time count = 10ms,   timerValue = 0x2710 = 10000
+		TH1 = 0x03;
+		TL1 = 0xE8;
+	} else {
+		// range_mode == 0 --> 9,999 -> f = 1000, time count = 1ms,  timerValue = 0x03E8 = 1000
+		TH1 = 0x27;
+		TL1 = 0x10;
+	}
+}
+
 void readRangeSW(void)
 {
-	/*
-	if (range != RANGE) {
+	if (range_mode != RANGE_SW) {
 		delay_ms(50);
-		if (range != RANGE){
-			range = RANGE;
-			if (range) {
+		if (range_mode != RANGE_SW){
+			range_mode = RANGE_SW;
+			if (range_mode == 1) {
 				factor = 100;
-				// update counter
 			} else {
 				factor = 1000;
-				//update counter
+				
 			}
+			//update counter
+			setTimer1Value();
 			update();
+			resetTime();
 		}
 	}
-	*/
 }
 
 void readResetButton()
 {
 	if (RESET == 1) {
-		delay_ms(50);
+		delay_ms(20);
 		while (RESET == 1){
-			delay_ms(50);
+			delay_ms(10);
 		}
 		resetTime();
 	}
@@ -208,5 +254,6 @@ void ISR_ET1 (void) interrupt 3
 		time++;
 		update();
 	}
+	setTimer1Value();
 }
 
