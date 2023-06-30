@@ -1,0 +1,231 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              06/30/2023 08:38:00 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <AT892051.H>
+   2          #include <stdio.h>      
+   3          
+   4          sbit LED7A  = P1^4;
+   5          sbit LED7B  = P1^5;
+   6          sbit LED7C  = P1^6;
+   7          sbit LED7D  = P1^1;
+   8          sbit LED7E  = P1^0;
+   9          sbit LED7F  = P1^3;
+  10          sbit LED7G  = P1^2;
+  11          sbit LED7DP = P1^7;
+  12          sbit LED7_1 = P3^5;
+  13          sbit LED7_2 = P3^4;
+  14          sbit LED7_3 = P3^3;
+  15          sbit LED7_4 = P3^2;
+  16          
+  17          sbit RANGE_SW  = P3^0;
+  18          sbit COM    = P3^1;
+  19          sbit RESET  = P3^7;
+  20          
+  21          //magic number define
+  22          /*
+  23              7 6 5 4 3 2 1 0
+  24              DP C B A F G D E
+  25          0   1 0 0 0 0 1 0 0  -> 0x84
+  26          1       1 0 0 1 1 1 1 1  -> 0x9F
+  27          2   1 1 0 0 1 0 0 0  -> 0xC8
+  28          3   1 0 0 0 1 0 0 1  -> 0x89
+  29          4   1 0 0 1 0 0 1 1  -> 0x93
+  30          5   1 0 1 0 0 0 0 1  -> 0xA1
+  31          6   1 0 1 0 0 0 0 0  -> 0xA0
+  32          7   1 0 0 0 1 1 1 1  -> 0x8F
+  33          8   1 0 0 0 0 0 0 0  -> 0x80
+  34          9   1 0 0 0 0 0 0 1  -> 0x81
+  35          */
+  36          unsigned int led7[10] = { 0x84, 0x9F, 0xC8, 0x89, 0x93, 0xA1, 0xA0, 0x8F, 0x80, 0x81 };
+  37          
+  38          // global variable define
+  39          bit range = 0;
+  40          unsigned int time = 1230;
+  41          unsigned int factor = 100;
+  42          unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
+  43          unsigned int pointIdx = 0;
+  44          unsigned int digitIdx = 1; // range in 1-4
+  45          
+  46          void readResetButton(void);
+  47          void readRangeSW(void);
+  48          void display(void);
+  49          
+  50          void setDisplay(unsigned int number, unsigned int f);
+  51          void resetTime(void);
+  52          void update(void);
+  53          
+  54          // util function
+C51 COMPILER V9.60.7.0   MAIN                                                              06/30/2023 08:38:00 PAGE 2   
+
+  55          void delay_ms(unsigned int itime);
+  56          
+  57          void main (void)
+  58          {
+  59   1              ET0 = 1;  // cho phep ngat timer 0
+  60   1              TMOD=0x02;//Sd Timer1 che do 8bit tu nap lai (ngat timer)
+  61   1              TH0=TL0=0x1F;//Nap gia tri bat dau 8bit
+  62   1              TR0=1;//Khoi dong timer0
+  63   1              ET0=1;//Ngat timer0
+  64   1              
+  65   1              EA = 1;   // cho phep ngat toan cuc
+  66   1              
+  67   1              RESET = 0;
+  68   1              COM = 0;
+  69   1              RANGE = 1;
+*** ERROR C202 IN LINE 69 OF main.c: 'RANGE': undefined identifier
+  70   1              update();
+  71   1              while (1)
+  72   1              {
+  73   2                      readRangeSW();
+  74   2                      readResetButton();
+  75   2                      delay_ms(20);
+  76   2              }
+  77   1      }
+  78          
+  79          void readRangeSW(void)
+  80          {
+  81   1              /*
+  82   1              if (range != RANGE) {
+  83   1                      delay_ms(50);
+  84   1                      if (range != RANGE){
+  85   1                              range = RANGE;
+  86   1                              if (range) {
+  87   1                                      factor = 100;
+  88   1                                      // update counter
+  89   1                              } else {
+  90   1                                      factor = 1000;
+  91   1                                      //update counter
+  92   1                              }
+  93   1                              update();
+  94   1                      }
+  95   1              }
+  96   1              */
+  97   1      }
+  98          
+  99          void readResetButton()
+ 100          {
+ 101   1              if (RESET == 1) {
+ 102   2                      delay_ms(50);
+ 103   2                      while (RESET == 1){
+ 104   3                              delay_ms(50);
+ 105   3                      }
+ 106   2                      resetTime();
+ 107   2              }
+ 108   1      }
+ 109                  
+ 110          void resetTime()
+ 111          {
+ 112   1              time = 0;
+ 113   1              update();
+ 114   1      }
+ 115          
+C51 COMPILER V9.60.7.0   MAIN                                                              06/30/2023 08:38:00 PAGE 3   
+
+ 116          void update(void)
+ 117          {
+ 118   1              setDisplay(time, factor);
+ 119   1      }
+ 120          
+ 121          void setDisplay(unsigned int number, unsigned int f)
+ 122          {
+ 123   1              digitVal_1 = number % 10;
+ 124   1              digitVal_2 = (number /10) % 10;
+ 125   1              digitVal_3 = (number /100) % 10;
+ 126   1              digitVal_4 = (number /1000) % 10;
+ 127   1              
+ 128   1              if (f == 1){
+ 129   2                      pointIdx = 0;
+ 130   2              } else if (f == 10) {
+ 131   2                      pointIdx = 2;
+ 132   2              } else if (f == 100) {
+ 133   2                      pointIdx = 3;
+ 134   2              } else if (f == 1000) {
+ 135   2                      pointIdx = 4;
+ 136   2              }
+ 137   1      }
+ 138          
+ 139          void display(void)
+ 140          {
+ 141   1              LED7_1 = 1;
+ 142   1              LED7_2 = 1;
+ 143   1              LED7_3 = 1;
+ 144   1              LED7_4 = 1;
+ 145   1              switch (digitIdx) {
+ 146   2                      case 1: {
+ 147   3                              P1 = led7[digitVal_1];
+ 148   3                              if (pointIdx == 1){
+ 149   4                                      LED7DP = 0;
+ 150   4                              }
+ 151   3                              LED7_1 = 0;
+ 152   3                              break;
+ 153   3                      }
+ 154   2                      case 2: {
+ 155   3                              P1 = led7[digitVal_2];
+ 156   3                              if (pointIdx == 2){
+ 157   4                                      LED7DP = 0;
+ 158   4                              }
+ 159   3                              LED7_2 = 0;
+ 160   3                              break;
+ 161   3                      }
+ 162   2                      case 3: {
+ 163   3                              P1 = led7[digitVal_3];
+ 164   3                              if (pointIdx == 3){
+ 165   4                                      LED7DP = 0;
+ 166   4                              }
+ 167   3                              LED7_3 = 0;
+ 168   3                              break;
+ 169   3                      }
+ 170   2                      case 4: {
+ 171   3                              P1 = led7[digitVal_4];
+ 172   3                              if (pointIdx == 4){
+ 173   4                                      LED7DP = 0;
+ 174   4                              }
+ 175   3                              LED7_4 = 0;     
+ 176   3                              break;
+ 177   3                      }
+C51 COMPILER V9.60.7.0   MAIN                                                              06/30/2023 08:38:00 PAGE 4   
+
+ 178   2              }
+ 179   1              
+ 180   1              if (digitIdx == 4) {
+ 181   2                      digitIdx = 1;
+ 182   2              } else {
+ 183   2                      digitIdx++;
+ 184   2              }
+ 185   1      }
+ 186          
+ 187          void delay_ms(unsigned int itime)
+ 188          {
+ 189   1              unsigned int i, j;
+ 190   1              unsigned char d;
+ 191   1              for (i=0;i < itime;i++) {
+ 192   2                      for(j=0;j<1275;j++) {
+ 193   3                              d=0;
+ 194   3                      }
+ 195   2              }
+ 196   1      }
+ 197          
+ 198          //timer interupt for display
+ 199          void ISR_ET0 (void) interrupt 1 
+ 200          {
+ 201   1          display();
+ 202   1      }
+ 203          
+ 204          //timer interupt for count time : only count when COM set to 1
+ 205          void ISR_ET1 (void) interrupt 3
+ 206          {
+ 207   1              if (COM == 1){
+ 208   2                      time++;
+ 209   2                      update();
+ 210   2              }
+ 211   1      }
+ 212          
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)
