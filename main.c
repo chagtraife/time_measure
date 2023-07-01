@@ -42,6 +42,8 @@ bit range_mode = 1;
 unsigned int factor = 100;
 
 unsigned int time = 0;
+unsigned int time_1000 = 0;
+unsigned int time_mode0 = 0;
 unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
 unsigned int pointIdx = 0;
 unsigned int digitIdx = 1; // range in 1-4
@@ -111,15 +113,9 @@ void init_TC1(void)
 
 void setTimer1Value(void)
 {
-	if (range_mode == 1) {
-		//range_mode == 1 --> 99,99 -> f = 100,  time count = 10ms,   timerValue = 0x2710 = 10000
-		TH1 = 0x03;
-		TL1 = 0xE8;
-	} else {
-		// range_mode == 0 --> 9,999 -> f = 1000, time count = 1ms,  timerValue = 0x03E8 = 1000
-		TH1 = 0x27;
-		TL1 = 0x10;
-	}
+	//time count = 1ms,  timerValue = 0x03E8 = 1000
+	TH1 = 0x03;
+	TL1 = 0x8E;
 }
 
 void readRangeSW(void)
@@ -134,10 +130,7 @@ void readRangeSW(void)
 				factor = 1000;
 				
 			}
-			//update counter
-			setTimer1Value();
 			update();
-			resetTime();
 		}
 	}
 }
@@ -161,7 +154,12 @@ void resetTime()
 
 void update(void)
 {
-	setDisplay(time, factor);
+	if (factor == 1000){
+		time_mode0	= (time % 1000) *10 + time_1000;
+		setDisplay(time_mode0, factor);
+	} else {
+		setDisplay(time, factor);
+	}
 }
 
 void setDisplay(unsigned int number, unsigned int f)
@@ -251,7 +249,11 @@ void ISR_ET0 (void) interrupt 1
 void ISR_ET1 (void) interrupt 3
 {
 	if (COM == 1){
-		time++;
+		time_1000++;
+		if (time_1000 == 10) {
+			time_1000 = 0;
+			time++;	
+		}
 		update();
 	}
 	setTimer1Value();
