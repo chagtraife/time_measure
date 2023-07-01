@@ -1,0 +1,1 @@
+sdcc -o build/ src/main.c -mmcs51 --opt-code-size --code-size 2048
