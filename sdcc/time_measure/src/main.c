@@ -41,8 +41,9 @@ uint8_t led7[10] = { 0x84, 0x9F, 0xC8, 0x89, 0x93, 0xA1, 0xA0, 0x8F, 0x80, 0x81 
 __bit range_mode = 1;
 unsigned int factor = 100;
 
-unsigned int time = 0;
-unsigned int time_1000 = 0;
+__bit mode_tmp;
+
+unsigned int time_mode1 = 0;
 unsigned int time_mode0 = 0;
 unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
 unsigned int pointIdx = 0;
@@ -50,7 +51,6 @@ unsigned int digitIdx = 1; // range in 1-4
 
 void init_TC0(void);
 void init_TC1(void);
-void setTimer1Value(void);
 void init_GPIO(void);
 
 
@@ -69,15 +69,38 @@ void main (void)
 {
 	readRangeSW();
 	init_GPIO();
-	init_TC0();
-	init_TC1();
+//	init_TC0();
+//	init_TC1();
+	TMOD = 0x11;
+	
+	ET0 = 1;
+	if (range_mode == 1) {
+		TH0 = 0xD8;
+		TL0 = 0xF0;
+	} else {
+		TH0 = 0xFC;
+		TL0 = 0x2F;
+	}
+
+	PT0 = 1;
+	TR0 = 1;         //Khoi dong timer1
+	ET0 = 1;         //Ngat timer1
+	
+	ET1 = 1;
+	TH1 = 0xF8;
+	TL1 = 0x30;
+	TR1 = 1;
+	ET1 = 1;
+	
+	EA = 1;          // cho phep ngat toan cuc
+	
 
 	update();
 	while (1)
 	{
 		readRangeSW();
 		readResetButton();
-		delay_ms(20);
+		delay_ms(2);
 	}
 }
 
@@ -89,76 +112,86 @@ void init_GPIO(void)
 }
 
 // used for display
-void init_TC0(void)
+void init_TC1(void)
 {
-	ET0 = 1;         // cho phep ngat timer 0
-	TMOD = 0x02;    //Sd Timer0 che do 8bit tu nap lai (ngat timer)
-	TH0 = 0x1F;      //Nap gia tri bat dau 8bit
-	TL0 = 0x1F;
-	TR0 = 1;         //Khoi dong timer0
-	ET0 = 1;         //Ngat timer0
+	ET1 = 1;         // cho phep ngat timer 0
+	//TMOD = 0x11;    //Sd Timer0 che do 8bit tu nap lai (ngat timer)
+	TH1 = 0xF8;      //Nap gia tri bat dau 8bit
+	TL1 = 0x30;
+	TR1 = 0;         //Khoi dong timer0
+	ET1 = 1;         //Ngat timer0
 	EA = 1;          // cho phep ngat toan cuc
 }
 
 //used for count
-void init_TC1(void)
+void init_TC0(void)
 {
-	ET1 = 1;         // cho phep ngat timer 1
-	TMOD |= 0x10;    //Use Timer1 at 16-bit timer mode.
-	setTimer1Value();
-	TR1 = 1;         //Khoi dong timer1
-	ET1 = 1;         //Ngat timer1
+	ET0 = 1;         // cho phep ngat timer 1
+	TMOD = 0x11;    //Use Timer1 at 16-bit timer mode.
+	TH0 = 0xFC;
+	TL0 = 0x2F;
+	PT0 = 1;
+	TR0 = 1;         //Khoi dong timer1
+	ET0 = 1;         //Ngat timer1
 	EA = 1;          // cho phep ngat toan cuc
-}
-
-void setTimer1Value(void)
-{
-	//time count = 1ms,  timerValue = 0x03E8 = 1000
-	TH1 = 0x03;
-	TL1 = 0x8E;
 }
 
 void readRangeSW(void)
 {
 	if (range_mode != RANGE_SW) {
-		delay_ms(50);
-		if (range_mode != RANGE_SW){
-			range_mode = RANGE_SW;
-			if (range_mode == 1) {
+		delay_ms(2);
+		mode_tmp = RANGE_SW;
+		/*
+		if (range_mode != mode_tmp){
+			if (mode_tmp == 1) {
 				factor = 100;
+				time_mode1 = ((time_mode1 / 1000) % 10) * 1000 + (time_mode0 / 10) % 1000;
 			} else {
 				factor = 1000;
+				time_mode0 = (time_mode1 % 1000) * 10;
 				
 			}
+			range_mode = mode_tmp;
 			update();
 		}
+		*/
 	}
 }
 
 void readResetButton()
 {
 	if (RESET == 1) {
-		delay_ms(20);
-		while (RESET == 1){
-			delay_ms(10);
+		delay_ms(1);
+		if (RESET == 1){
+			resetTime();
 		}
-		resetTime();
 	}
 }
 	
 void resetTime()
 {
-	time = 0;
+	time_mode1 = 0;
+	time_mode0 = 0;
 	update();
 }
 
 void update(void)
 {
+	if (range_mode != mode_tmp){
+		if (mode_tmp == 1) {
+			factor = 100;
+			time_mode1 = ((time_mode1 / 1000) % 10) * 1000 + (time_mode0 / 10) % 1000;
+		} else {
+			factor = 1000;
+			time_mode0 = (time_mode1 % 1000) * 10;
+			
+		}
+		range_mode = mode_tmp;
+	}
 	if (factor == 1000){
-		time_mode0	= (time % 1000) *10 + time_1000;
 		setDisplay(time_mode0, factor);
 	} else {
-		setDisplay(time, factor);
+		setDisplay(time_mode1, factor);
 	}
 }
 
@@ -167,7 +200,11 @@ void setDisplay(unsigned int number, unsigned int f)
 	digitVal_1 = number % 10;
 	digitVal_2 = (number /10) % 10;
 	digitVal_3 = (number /100) % 10;
-	digitVal_4 = (number /1000) % 10;
+	if ((number < 1000) && (f !=1000)){
+		digitVal_4 = 10; // mean do not display
+	} else{
+		digitVal_4 = (number /1000) % 10;
+	}
 	
 	if (f == 1){
 		pointIdx = 0;
@@ -212,6 +249,7 @@ void display(void)
 			break;
 		}
 		case 4: {
+			if (digitVal_4 == 10) break;
 			P1 = led7[digitVal_4];
 			if (pointIdx == 4){
 				LED7DP = 0;
@@ -233,29 +271,41 @@ void delay_ms(unsigned int itime)
 	unsigned int i, j;
 	unsigned char d;
 	for (i=0;i < itime;i++) {
-		for(j=0;j<1275;j++) {
+		for(j=0;j<500;j++) {
 			d=0;
 		}
 	}
 }
 
-//timer interupt for display
-void ISR_ET0 (void) __interrupt 1 
-{
-    display();
-}
-
 //timer interupt for count time : only count when COM set to 1
-void ISR_ET1 (void) __interrupt 3
+void ISR_ET0 (void) __interrupt 1
 {
 	if (COM == 1){
-		time_1000++;
-		if (time_1000 == 10) {
-			time_1000 = 0;
-			time++;	
+		if (range_mode == 1) {
+			time_mode1++;
+			TH0 = 0xD8;
+			TL0 = 0xF0;
+		} else {
+			time_mode0++;
+			if (time_mode0 == 10000) {
+				time_mode0 = 0;
+				time_mode1 += 1000; 
+				if (time_mode1 >= 10000) {
+					time_mode1 = 0;
+				}
+			}
+			TH0 = 0xFC;
+			TL0 = 0x2F;
 		}
-		update();
 	}
-	setTimer1Value();
+}
+
+//timer interupt for display
+void ISR_ET1 (void) __interrupt 3 
+{
+	update();
+    display();
+	TH1 = 0xF8;      //Nap gia tri bat dau 8bit
+	TL1 = 0x30;
 }
 

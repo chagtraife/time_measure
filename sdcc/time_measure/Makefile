@@ -4,19 +4,10 @@ SDCCOPTS = -mmcs51 --opt-code-size --code-size $(STCCODESIZE)
 TARGET = main
 BUILDDIR = build
 
-ifdef OS
-	RM = del /Q
-	CP = copy
-	DIRSEP = \$
-	RMDIR = rmdir
-else
-	ifeq ($(shell uname), Linux)
-		RM = rm -f
-		CP = cp
-		DIRSEP = /
-		RMDIR = rmdir
-	endif
-endif
+RM = rm -f
+CP = cp
+DIRSEP = /
+RMDIR = rmdir
 
 all: $(BUILDDIR) $(TARGET)
 
@@ -25,7 +16,7 @@ $(BUILDDIR):
 
 $(TARGET): src/$(TARGET).c
 	$(SDCC) -o build/ src/$@.c $(SDCCOPTS)
-	@$(CP) $(BUILDDIR)$(DIRSEP)$@.ihx clock.hex
+	@$(CP) $(BUILDDIR)$(DIRSEP)$@.ihx main.hex
 
 clean:
 	@$(RM) "$(BUILDDIR)$(DIRSEP)*"

@@ -218,8 +218,8 @@ Symbol Table
     _INT0                                                       =  0000B2 G
     _INT1                                                       =  0000B3 G
     _IP                                                         =  0000B8 G
- 19 _ISR_ET0                                                       000293 GR
- 19 _ISR_ET1                                                       0002D2 GR
+ 19 _ISR_ET0                                                       000326 GR
+ 19 _ISR_ET1                                                       00037E GR
     _IT0                                                        =  000088 G
     _IT1                                                        =  00008A G
     _OV                                                         =  0000D2 G
@@ -319,30 +319,29 @@ Symbol Table
     __sdcc_gsinit_startup                                          ****** GX
  10 __sdcc_program_startup                                         00001E GR
   8 __start__stack                                                 000000 GR
- 19 _delay_ms                                                      000268 GR
-  6 _digitIdx                                                      00001C GR
-  6 _digitVal_1                                                    000012 GR
-  6 _digitVal_2                                                    000014 GR
-  6 _digitVal_3                                                    000016 GR
-  6 _digitVal_4                                                    000018 GR
- 19 _display                                                       0001B7 GR
+ 19 _delay_ms                                                      0002FB GR
+  6 _digitIdx                                                      00001A GR
+  6 _digitVal_1                                                    000010 GR
+  6 _digitVal_2                                                    000012 GR
+  6 _digitVal_3                                                    000014 GR
+  6 _digitVal_4                                                    000016 GR
+ 19 _display                                                       00023F GR
   6 _factor                                                        00000A GR
- 19 _init_GPIO                                                     00001D GR
- 19 _init_TC0                                                      000024 GR
- 19 _init_TC1                                                      000036 GR
+ 19 _init_GPIO                                                     000041 GR
+ 19 _init_TC0                                                      000057 GR
+ 19 _init_TC1                                                      000048 GR
   6 _led7                                                          000000 GR
  19 _main                                                          000000 GR
-  6 _pointIdx                                                      00001A GR
+  B _mode_tmp                                                      000001 GR
+  6 _pointIdx                                                      000018 GR
   B _range_mode                                                    000000 GR
- 19 _readRangeSW                                                   00004C GR
- 19 _readResetButton                                               00007A GR
- 19 _resetTime                                                     000092 GR
- 19 _setDisplay                                                    0000EC GR
-  6 _setDisplay_PARM_2                                             00001E GR
- 19 _setTimer1Value                                                000045 GR
-  6 _time                                                          00000C GR
-  6 _time_1000                                                     00000E GR
-  6 _time_mode0                                                    000010 GR
+ 19 _readRangeSW                                                   00006B GR
+ 19 _readResetButton                                               00007E GR
+ 19 _resetTime                                                     00008E GR
+ 19 _setDisplay                                                    000157 GR
+  6 _setDisplay_PARM_2                                             00001C GR
+  6 _time_mode0                                                    00000E GR
+  6 _time_mode1                                                    00000C GR
  19 _update                                                        00009A GR
     a                                                           =  0000E0 L
     a.0                                                         =  0000E0 L
@@ -358,12 +357,12 @@ Symbol Table
     acc.0                                                       =  0000E0 L
     acc.1                                                       =  0000E1 L
     acc.2                                                       =  0000E2 L
+    acc.3                                                       =  0000E3 L
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 7.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
-    acc.3                                                       =  0000E3 L
     acc.4                                                       =  0000E4 L
     acc.5                                                       =  0000E5 L
     acc.6                                                       =  0000E6 L
@@ -418,12 +417,12 @@ Symbol Table
     ie.5                                                        =  0000AD L
     ie.7                                                        =  0000AF L
     ie0                                                         =  000089 L
+    ie1                                                         =  00008B L
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 8.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
-    ie1                                                         =  00008B L
     int0                                                        =  0000B2 L
     int1                                                        =  0000B3 L
     ip                                                          =  0000B8 L
@@ -478,12 +477,12 @@ Symbol Table
     psw                                                         =  0000D0 L
     psw.0                                                       =  0000D0 L
     psw.1                                                       =  0000D1 L
+    psw.2                                                       =  0000D2 L
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 9.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
-    psw.2                                                       =  0000D2 L
     psw.3                                                       =  0000D3 L
     psw.4                                                       =  0000D4 L
     psw.5                                                       =  0000D5 L
@@ -538,12 +537,12 @@ Symbol Table
     tcon.6                                                      =  00008E L
     tcon.7                                                      =  00008F L
     tf0                                                         =  00008D L
+    tf1                                                         =  00008F L
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Intel 8051), page 10.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
-    tf1                                                         =  00008F L
     tf2                                                         =  0000CF L
     th0                                                         =  00008C L
     th1                                                         =  00008D L
@@ -570,12 +569,12 @@ Area Table
    3 RSEG1                                      size      0   flags    8
    4 REG_BANK_0                                 size      8   flags    4
    5 BIT_BANK                                   size      1   flags    4
-   6 DSEG                                       size     20   flags    0
+   6 DSEG                                       size     1E   flags    0
    7 OSEG                                       size      0   flags    4
    8 SSEG                                       size      1   flags    0
    9 ISEG                                       size      0   flags    0
    A IABS                                       size      0   flags    8
-   B BSEG                                       size      1   flags   80
+   B BSEG                                       size      2   flags   80
    C PSEG                                       size      0   flags   50
    D XSEG                                       size      0   flags   40
    E XABS                                       size      0   flags   48
@@ -587,9 +586,9 @@ Area Table
   14 GSINIT3                                    size      0   flags   20
   15 GSINIT4                                    size      0   flags   20
   16 GSINIT5                                    size      0   flags   20
-  17 GSINIT                                     size     40   flags   20
+  17 GSINIT                                     size     3C   flags   20
   18 GSFINAL                                    size      3   flags   20
-  19 CSEG                                       size    338   flags   20
+  19 CSEG                                       size    3C6   flags   20
   1A CONST                                      size      0   flags   20
   1B XINIT                                      size      0   flags   20
   1C CABS                                       size      0   flags   28

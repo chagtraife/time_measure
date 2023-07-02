@@ -1,7 +1,7 @@
                                       1 ;--------------------------------------------------------
                                       2 ; File Created by SDCC : free open source ANSI-C Compiler
                                       3 ; Version 3.5.0 #9253 (Jun 20 2015) (MINGW64)
-                                      4 ; This file was generated Sat Jul 01 23:53:59 2023
+                                      4 ; This file was generated Sun Jul 02 20:33:26 2023
                                       5 ;--------------------------------------------------------
                                       6 	.module main
                                       7 	.optsdcc -mmcs51 --model-small
@@ -108,969 +108,1049 @@
                                     108 	.globl _DPL
                                     109 	.globl _SP
                                     110 	.globl _P0
-                                    111 	.globl _range_mode
-                                    112 	.globl _setDisplay_PARM_2
-                                    113 	.globl _digitIdx
-                                    114 	.globl _pointIdx
-                                    115 	.globl _digitVal_4
-                                    116 	.globl _digitVal_3
-                                    117 	.globl _digitVal_2
-                                    118 	.globl _digitVal_1
-                                    119 	.globl _time_mode0
-                                    120 	.globl _time_1000
-                                    121 	.globl _time
+                                    111 	.globl _mode_tmp
+                                    112 	.globl _range_mode
+                                    113 	.globl _setDisplay_PARM_2
+                                    114 	.globl _digitIdx
+                                    115 	.globl _pointIdx
+                                    116 	.globl _digitVal_4
+                                    117 	.globl _digitVal_3
+                                    118 	.globl _digitVal_2
+                                    119 	.globl _digitVal_1
+                                    120 	.globl _time_mode0
+                                    121 	.globl _time_mode1
                                     122 	.globl _factor
                                     123 	.globl _led7
                                     124 	.globl _init_GPIO
-                                    125 	.globl _init_TC0
-                                    126 	.globl _init_TC1
-                                    127 	.globl _setTimer1Value
-                                    128 	.globl _readRangeSW
-                                    129 	.globl _readResetButton
-                                    130 	.globl _resetTime
-                                    131 	.globl _update
-                                    132 	.globl _setDisplay
-                                    133 	.globl _display
-                                    134 	.globl _delay_ms
-                                    135 ;--------------------------------------------------------
-                                    136 ; special function registers
-                                    137 ;--------------------------------------------------------
-                                    138 	.area RSEG    (ABS,DATA)
-      000000                        139 	.org 0x0000
-                           000080   140 _P0	=	0x0080
-                           000081   141 _SP	=	0x0081
-                           000082   142 _DPL	=	0x0082
-                           000083   143 _DPH	=	0x0083
-                           000087   144 _PCON	=	0x0087
-                           000088   145 _TCON	=	0x0088
-                           000089   146 _TMOD	=	0x0089
-                           00008A   147 _TL0	=	0x008a
-                           00008B   148 _TL1	=	0x008b
-                           00008C   149 _TH0	=	0x008c
-                           00008D   150 _TH1	=	0x008d
-                           000090   151 _P1	=	0x0090
-                           000098   152 _SCON	=	0x0098
-                           000099   153 _SBUF	=	0x0099
-                           0000A0   154 _P2	=	0x00a0
-                           0000A8   155 _IE	=	0x00a8
-                           0000B0   156 _P3	=	0x00b0
-                           0000B8   157 _IP	=	0x00b8
-                           0000D0   158 _PSW	=	0x00d0
-                           0000E0   159 _ACC	=	0x00e0
-                           0000F0   160 _B	=	0x00f0
-                                    161 ;--------------------------------------------------------
-                                    162 ; special function bits
-                                    163 ;--------------------------------------------------------
-                                    164 	.area RSEG    (ABS,DATA)
-      000000                        165 	.org 0x0000
-                           000080   166 _P0_0	=	0x0080
-                           000081   167 _P0_1	=	0x0081
-                           000082   168 _P0_2	=	0x0082
-                           000083   169 _P0_3	=	0x0083
-                           000084   170 _P0_4	=	0x0084
-                           000085   171 _P0_5	=	0x0085
-                           000086   172 _P0_6	=	0x0086
-                           000087   173 _P0_7	=	0x0087
-                           000088   174 _IT0	=	0x0088
-                           000089   175 _IE0	=	0x0089
-                           00008A   176 _IT1	=	0x008a
-                           00008B   177 _IE1	=	0x008b
-                           00008C   178 _TR0	=	0x008c
-                           00008D   179 _TF0	=	0x008d
-                           00008E   180 _TR1	=	0x008e
-                           00008F   181 _TF1	=	0x008f
-                           000090   182 _P1_0	=	0x0090
-                           000091   183 _P1_1	=	0x0091
-                           000092   184 _P1_2	=	0x0092
-                           000093   185 _P1_3	=	0x0093
-                           000094   186 _P1_4	=	0x0094
-                           000095   187 _P1_5	=	0x0095
-                           000096   188 _P1_6	=	0x0096
-                           000097   189 _P1_7	=	0x0097
-                           000098   190 _RI	=	0x0098
-                           000099   191 _TI	=	0x0099
-                           00009A   192 _RB8	=	0x009a
-                           00009B   193 _TB8	=	0x009b
-                           00009C   194 _REN	=	0x009c
-                           00009D   195 _SM2	=	0x009d
-                           00009E   196 _SM1	=	0x009e
-                           00009F   197 _SM0	=	0x009f
-                           0000A0   198 _P2_0	=	0x00a0
-                           0000A1   199 _P2_1	=	0x00a1
-                           0000A2   200 _P2_2	=	0x00a2
-                           0000A3   201 _P2_3	=	0x00a3
-                           0000A4   202 _P2_4	=	0x00a4
-                           0000A5   203 _P2_5	=	0x00a5
-                           0000A6   204 _P2_6	=	0x00a6
-                           0000A7   205 _P2_7	=	0x00a7
-                           0000A8   206 _EX0	=	0x00a8
-                           0000A9   207 _ET0	=	0x00a9
-                           0000AA   208 _EX1	=	0x00aa
-                           0000AB   209 _ET1	=	0x00ab
-                           0000AC   210 _ES	=	0x00ac
-                           0000AF   211 _EA	=	0x00af
-                           0000B0   212 _P3_0	=	0x00b0
-                           0000B1   213 _P3_1	=	0x00b1
-                           0000B2   214 _P3_2	=	0x00b2
-                           0000B3   215 _P3_3	=	0x00b3
-                           0000B4   216 _P3_4	=	0x00b4
-                           0000B5   217 _P3_5	=	0x00b5
-                           0000B6   218 _P3_6	=	0x00b6
-                           0000B7   219 _P3_7	=	0x00b7
-                           0000B0   220 _RXD	=	0x00b0
-                           0000B1   221 _TXD	=	0x00b1
-                           0000B2   222 _INT0	=	0x00b2
-                           0000B3   223 _INT1	=	0x00b3
-                           0000B4   224 _T0	=	0x00b4
-                           0000B5   225 _T1	=	0x00b5
-                           0000B6   226 _WR	=	0x00b6
-                           0000B7   227 _RD	=	0x00b7
-                           0000B8   228 _PX0	=	0x00b8
-                           0000B9   229 _PT0	=	0x00b9
-                           0000BA   230 _PX1	=	0x00ba
-                           0000BB   231 _PT1	=	0x00bb
-                           0000BC   232 _PS	=	0x00bc
-                           0000D0   233 _P	=	0x00d0
-                           0000D1   234 _F1	=	0x00d1
-                           0000D2   235 _OV	=	0x00d2
-                           0000D3   236 _RS0	=	0x00d3
-                           0000D4   237 _RS1	=	0x00d4
-                           0000D5   238 _F0	=	0x00d5
-                           0000D6   239 _AC	=	0x00d6
-                           0000D7   240 _CY	=	0x00d7
-                                    241 ;--------------------------------------------------------
-                                    242 ; overlayable register banks
-                                    243 ;--------------------------------------------------------
-                                    244 	.area REG_BANK_0	(REL,OVR,DATA)
-      000000                        245 	.ds 8
-                                    246 ;--------------------------------------------------------
-                                    247 ; overlayable bit register bank
-                                    248 ;--------------------------------------------------------
-                                    249 	.area BIT_BANK	(REL,OVR,DATA)
-      000021                        250 bits:
-      000021                        251 	.ds 1
-                           008000   252 	b0 = bits[0]
-                           008100   253 	b1 = bits[1]
-                           008200   254 	b2 = bits[2]
-                           008300   255 	b3 = bits[3]
-                           008400   256 	b4 = bits[4]
-                           008500   257 	b5 = bits[5]
-                           008600   258 	b6 = bits[6]
-                           008700   259 	b7 = bits[7]
-                                    260 ;--------------------------------------------------------
-                                    261 ; internal ram data
-                                    262 ;--------------------------------------------------------
-                                    263 	.area DSEG    (DATA)
-      000022                        264 _led7::
-      000022                        265 	.ds 10
-      00002C                        266 _factor::
-      00002C                        267 	.ds 2
-      00002E                        268 _time::
-      00002E                        269 	.ds 2
-      000030                        270 _time_1000::
-      000030                        271 	.ds 2
-      000032                        272 _time_mode0::
-      000032                        273 	.ds 2
-      000034                        274 _digitVal_1::
-      000034                        275 	.ds 2
-      000036                        276 _digitVal_2::
-      000036                        277 	.ds 2
-      000038                        278 _digitVal_3::
-      000038                        279 	.ds 2
-      00003A                        280 _digitVal_4::
-      00003A                        281 	.ds 2
-      00003C                        282 _pointIdx::
-      00003C                        283 	.ds 2
-      00003E                        284 _digitIdx::
-      00003E                        285 	.ds 2
-      000040                        286 _setDisplay_PARM_2:
-      000040                        287 	.ds 2
-                                    288 ;--------------------------------------------------------
-                                    289 ; overlayable items in internal ram 
-                                    290 ;--------------------------------------------------------
-                                    291 	.area	OSEG    (OVR,DATA)
-                                    292 ;--------------------------------------------------------
-                                    293 ; Stack segment in internal ram 
-                                    294 ;--------------------------------------------------------
-                                    295 	.area	SSEG
-      000042                        296 __start__stack:
-      000042                        297 	.ds	1
-                                    298 
-                                    299 ;--------------------------------------------------------
-                                    300 ; indirectly addressable internal ram data
-                                    301 ;--------------------------------------------------------
-                                    302 	.area ISEG    (DATA)
-                                    303 ;--------------------------------------------------------
-                                    304 ; absolute internal ram data
+                                    125 	.globl _init_TC1
+                                    126 	.globl _init_TC0
+                                    127 	.globl _readRangeSW
+                                    128 	.globl _readResetButton
+                                    129 	.globl _resetTime
+                                    130 	.globl _update
+                                    131 	.globl _setDisplay
+                                    132 	.globl _display
+                                    133 	.globl _delay_ms
+                                    134 ;--------------------------------------------------------
+                                    135 ; special function registers
+                                    136 ;--------------------------------------------------------
+                                    137 	.area RSEG    (ABS,DATA)
+      000000                        138 	.org 0x0000
+                           000080   139 _P0	=	0x0080
+                           000081   140 _SP	=	0x0081
+                           000082   141 _DPL	=	0x0082
+                           000083   142 _DPH	=	0x0083
+                           000087   143 _PCON	=	0x0087
+                           000088   144 _TCON	=	0x0088
+                           000089   145 _TMOD	=	0x0089
+                           00008A   146 _TL0	=	0x008a
+                           00008B   147 _TL1	=	0x008b
+                           00008C   148 _TH0	=	0x008c
+                           00008D   149 _TH1	=	0x008d
+                           000090   150 _P1	=	0x0090
+                           000098   151 _SCON	=	0x0098
+                           000099   152 _SBUF	=	0x0099
+                           0000A0   153 _P2	=	0x00a0
+                           0000A8   154 _IE	=	0x00a8
+                           0000B0   155 _P3	=	0x00b0
+                           0000B8   156 _IP	=	0x00b8
+                           0000D0   157 _PSW	=	0x00d0
+                           0000E0   158 _ACC	=	0x00e0
+                           0000F0   159 _B	=	0x00f0
+                                    160 ;--------------------------------------------------------
+                                    161 ; special function bits
+                                    162 ;--------------------------------------------------------
+                                    163 	.area RSEG    (ABS,DATA)
+      000000                        164 	.org 0x0000
+                           000080   165 _P0_0	=	0x0080
+                           000081   166 _P0_1	=	0x0081
+                           000082   167 _P0_2	=	0x0082
+                           000083   168 _P0_3	=	0x0083
+                           000084   169 _P0_4	=	0x0084
+                           000085   170 _P0_5	=	0x0085
+                           000086   171 _P0_6	=	0x0086
+                           000087   172 _P0_7	=	0x0087
+                           000088   173 _IT0	=	0x0088
+                           000089   174 _IE0	=	0x0089
+                           00008A   175 _IT1	=	0x008a
+                           00008B   176 _IE1	=	0x008b
+                           00008C   177 _TR0	=	0x008c
+                           00008D   178 _TF0	=	0x008d
+                           00008E   179 _TR1	=	0x008e
+                           00008F   180 _TF1	=	0x008f
+                           000090   181 _P1_0	=	0x0090
+                           000091   182 _P1_1	=	0x0091
+                           000092   183 _P1_2	=	0x0092
+                           000093   184 _P1_3	=	0x0093
+                           000094   185 _P1_4	=	0x0094
+                           000095   186 _P1_5	=	0x0095
+                           000096   187 _P1_6	=	0x0096
+                           000097   188 _P1_7	=	0x0097
+                           000098   189 _RI	=	0x0098
+                           000099   190 _TI	=	0x0099
+                           00009A   191 _RB8	=	0x009a
+                           00009B   192 _TB8	=	0x009b
+                           00009C   193 _REN	=	0x009c
+                           00009D   194 _SM2	=	0x009d
+                           00009E   195 _SM1	=	0x009e
+                           00009F   196 _SM0	=	0x009f
+                           0000A0   197 _P2_0	=	0x00a0
+                           0000A1   198 _P2_1	=	0x00a1
+                           0000A2   199 _P2_2	=	0x00a2
+                           0000A3   200 _P2_3	=	0x00a3
+                           0000A4   201 _P2_4	=	0x00a4
+                           0000A5   202 _P2_5	=	0x00a5
+                           0000A6   203 _P2_6	=	0x00a6
+                           0000A7   204 _P2_7	=	0x00a7
+                           0000A8   205 _EX0	=	0x00a8
+                           0000A9   206 _ET0	=	0x00a9
+                           0000AA   207 _EX1	=	0x00aa
+                           0000AB   208 _ET1	=	0x00ab
+                           0000AC   209 _ES	=	0x00ac
+                           0000AF   210 _EA	=	0x00af
+                           0000B0   211 _P3_0	=	0x00b0
+                           0000B1   212 _P3_1	=	0x00b1
+                           0000B2   213 _P3_2	=	0x00b2
+                           0000B3   214 _P3_3	=	0x00b3
+                           0000B4   215 _P3_4	=	0x00b4
+                           0000B5   216 _P3_5	=	0x00b5
+                           0000B6   217 _P3_6	=	0x00b6
+                           0000B7   218 _P3_7	=	0x00b7
+                           0000B0   219 _RXD	=	0x00b0
+                           0000B1   220 _TXD	=	0x00b1
+                           0000B2   221 _INT0	=	0x00b2
+                           0000B3   222 _INT1	=	0x00b3
+                           0000B4   223 _T0	=	0x00b4
+                           0000B5   224 _T1	=	0x00b5
+                           0000B6   225 _WR	=	0x00b6
+                           0000B7   226 _RD	=	0x00b7
+                           0000B8   227 _PX0	=	0x00b8
+                           0000B9   228 _PT0	=	0x00b9
+                           0000BA   229 _PX1	=	0x00ba
+                           0000BB   230 _PT1	=	0x00bb
+                           0000BC   231 _PS	=	0x00bc
+                           0000D0   232 _P	=	0x00d0
+                           0000D1   233 _F1	=	0x00d1
+                           0000D2   234 _OV	=	0x00d2
+                           0000D3   235 _RS0	=	0x00d3
+                           0000D4   236 _RS1	=	0x00d4
+                           0000D5   237 _F0	=	0x00d5
+                           0000D6   238 _AC	=	0x00d6
+                           0000D7   239 _CY	=	0x00d7
+                                    240 ;--------------------------------------------------------
+                                    241 ; overlayable register banks
+                                    242 ;--------------------------------------------------------
+                                    243 	.area REG_BANK_0	(REL,OVR,DATA)
+      000000                        244 	.ds 8
+                                    245 ;--------------------------------------------------------
+                                    246 ; overlayable bit register bank
+                                    247 ;--------------------------------------------------------
+                                    248 	.area BIT_BANK	(REL,OVR,DATA)
+      000021                        249 bits:
+      000021                        250 	.ds 1
+                           008000   251 	b0 = bits[0]
+                           008100   252 	b1 = bits[1]
+                           008200   253 	b2 = bits[2]
+                           008300   254 	b3 = bits[3]
+                           008400   255 	b4 = bits[4]
+                           008500   256 	b5 = bits[5]
+                           008600   257 	b6 = bits[6]
+                           008700   258 	b7 = bits[7]
+                                    259 ;--------------------------------------------------------
+                                    260 ; internal ram data
+                                    261 ;--------------------------------------------------------
+                                    262 	.area DSEG    (DATA)
+      000022                        263 _led7::
+      000022                        264 	.ds 10
+      00002C                        265 _factor::
+      00002C                        266 	.ds 2
+      00002E                        267 _time_mode1::
+      00002E                        268 	.ds 2
+      000030                        269 _time_mode0::
+      000030                        270 	.ds 2
+      000032                        271 _digitVal_1::
+      000032                        272 	.ds 2
+      000034                        273 _digitVal_2::
+      000034                        274 	.ds 2
+      000036                        275 _digitVal_3::
+      000036                        276 	.ds 2
+      000038                        277 _digitVal_4::
+      000038                        278 	.ds 2
+      00003A                        279 _pointIdx::
+      00003A                        280 	.ds 2
+      00003C                        281 _digitIdx::
+      00003C                        282 	.ds 2
+      00003E                        283 _setDisplay_PARM_2:
+      00003E                        284 	.ds 2
+                                    285 ;--------------------------------------------------------
+                                    286 ; overlayable items in internal ram 
+                                    287 ;--------------------------------------------------------
+                                    288 	.area	OSEG    (OVR,DATA)
+                                    289 ;--------------------------------------------------------
+                                    290 ; Stack segment in internal ram 
+                                    291 ;--------------------------------------------------------
+                                    292 	.area	SSEG
+      000040                        293 __start__stack:
+      000040                        294 	.ds	1
+                                    295 
+                                    296 ;--------------------------------------------------------
+                                    297 ; indirectly addressable internal ram data
+                                    298 ;--------------------------------------------------------
+                                    299 	.area ISEG    (DATA)
+                                    300 ;--------------------------------------------------------
+                                    301 ; absolute internal ram data
+                                    302 ;--------------------------------------------------------
+                                    303 	.area IABS    (ABS,DATA)
+                                    304 	.area IABS    (ABS,DATA)
                                     305 ;--------------------------------------------------------
-                                    306 	.area IABS    (ABS,DATA)
-                                    307 	.area IABS    (ABS,DATA)
-                                    308 ;--------------------------------------------------------
-                                    309 ; bit data
-                                    310 ;--------------------------------------------------------
-                                    311 	.area BSEG    (BIT)
-      000000                        312 _range_mode::
-      000000                        313 	.ds 1
-                                    314 ;--------------------------------------------------------
-                                    315 ; paged external ram data
-                                    316 ;--------------------------------------------------------
-                                    317 	.area PSEG    (PAG,XDATA)
-                                    318 ;--------------------------------------------------------
-                                    319 ; external ram data
-                                    320 ;--------------------------------------------------------
-                                    321 	.area XSEG    (XDATA)
-                                    322 ;--------------------------------------------------------
-                                    323 ; absolute external ram data
-                                    324 ;--------------------------------------------------------
-                                    325 	.area XABS    (ABS,XDATA)
-                                    326 ;--------------------------------------------------------
-                                    327 ; external initialized ram data
-                                    328 ;--------------------------------------------------------
-                                    329 	.area XISEG   (XDATA)
-                                    330 	.area HOME    (CODE)
-                                    331 	.area GSINIT0 (CODE)
-                                    332 	.area GSINIT1 (CODE)
-                                    333 	.area GSINIT2 (CODE)
-                                    334 	.area GSINIT3 (CODE)
-                                    335 	.area GSINIT4 (CODE)
-                                    336 	.area GSINIT5 (CODE)
-                                    337 	.area GSINIT  (CODE)
-                                    338 	.area GSFINAL (CODE)
-                                    339 	.area CSEG    (CODE)
-                                    340 ;--------------------------------------------------------
-                                    341 ; interrupt vector 
-                                    342 ;--------------------------------------------------------
-                                    343 	.area HOME    (CODE)
-      000000                        344 __interrupt_vect:
-      000000 02 00 21         [24]  345 	ljmp	__sdcc_gsinit_startup
-      000003 32               [24]  346 	reti
-      000004                        347 	.ds	7
-      00000B 02 03 50         [24]  348 	ljmp	_ISR_ET0
-      00000E                        349 	.ds	5
-      000013 32               [24]  350 	reti
-      000014                        351 	.ds	7
-      00001B 02 03 8F         [24]  352 	ljmp	_ISR_ET1
-                                    353 ;--------------------------------------------------------
-                                    354 ; global & static initialisations
-                                    355 ;--------------------------------------------------------
-                                    356 	.area HOME    (CODE)
-                                    357 	.area GSINIT  (CODE)
-                                    358 	.area GSFINAL (CODE)
-                                    359 	.area GSINIT  (CODE)
-                                    360 	.globl __sdcc_gsinit_startup
-                                    361 	.globl __sdcc_program_startup
-                                    362 	.globl __start__stack
-                                    363 	.globl __mcs51_genXINIT
-                                    364 	.globl __mcs51_genXRAMCLEAR
-                                    365 	.globl __mcs51_genRAMCLEAR
-                                    366 ;	src/main.c:36: uint8_t led7[10] = { 0x84, 0x9F, 0xC8, 0x89, 0x93, 0xA1, 0xA0, 0x8F, 0x80, 0x81 };
-      00007A 75 22 84         [24]  367 	mov	_led7,#0x84
-      00007D 75 23 9F         [24]  368 	mov	(_led7 + 0x0001),#0x9F
-      000080 75 24 C8         [24]  369 	mov	(_led7 + 0x0002),#0xC8
-      000083 75 25 89         [24]  370 	mov	(_led7 + 0x0003),#0x89
-      000086 75 26 93         [24]  371 	mov	(_led7 + 0x0004),#0x93
-      000089 75 27 A1         [24]  372 	mov	(_led7 + 0x0005),#0xA1
-      00008C 75 28 A0         [24]  373 	mov	(_led7 + 0x0006),#0xA0
-      00008F 75 29 8F         [24]  374 	mov	(_led7 + 0x0007),#0x8F
-      000092 75 2A 80         [24]  375 	mov	(_led7 + 0x0008),#0x80
-      000095 75 2B 81         [24]  376 	mov	(_led7 + 0x0009),#0x81
-                                    377 ;	src/main.c:42: unsigned int factor = 100;
-      000098 75 2C 64         [24]  378 	mov	_factor,#0x64
-      00009B 75 2D 00         [24]  379 	mov	(_factor + 1),#0x00
-                                    380 ;	src/main.c:44: unsigned int time = 0;
-      00009E E4               [12]  381 	clr	a
-      00009F F5 2E            [12]  382 	mov	_time,a
-      0000A1 F5 2F            [12]  383 	mov	(_time + 1),a
-                                    384 ;	src/main.c:45: unsigned int time_1000 = 0;
-      0000A3 F5 30            [12]  385 	mov	_time_1000,a
-      0000A5 F5 31            [12]  386 	mov	(_time_1000 + 1),a
-                                    387 ;	src/main.c:46: unsigned int time_mode0 = 0;
-      0000A7 F5 32            [12]  388 	mov	_time_mode0,a
-      0000A9 F5 33            [12]  389 	mov	(_time_mode0 + 1),a
-                                    390 ;	src/main.c:47: unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
-      0000AB F5 3A            [12]  391 	mov	_digitVal_4,a
-      0000AD F5 3B            [12]  392 	mov	(_digitVal_4 + 1),a
-                                    393 ;	src/main.c:48: unsigned int pointIdx = 0;
-      0000AF F5 3C            [12]  394 	mov	_pointIdx,a
-      0000B1 F5 3D            [12]  395 	mov	(_pointIdx + 1),a
-                                    396 ;	src/main.c:49: unsigned int digitIdx = 1; // range in 1-4
-      0000B3 75 3E 01         [24]  397 	mov	_digitIdx,#0x01
-                                    398 ;	1-genFromRTrack replaced	mov	(_digitIdx + 1),#0x00
-      0000B6 F5 3F            [12]  399 	mov	(_digitIdx + 1),a
-                                    400 ;	src/main.c:41: __bit range_mode = 1;
-      0000B8 D2 00            [12]  401 	setb	_range_mode
-                                    402 	.area GSFINAL (CODE)
-      0000BA 02 00 1E         [24]  403 	ljmp	__sdcc_program_startup
-                                    404 ;--------------------------------------------------------
-                                    405 ; Home
-                                    406 ;--------------------------------------------------------
-                                    407 	.area HOME    (CODE)
-                                    408 	.area HOME    (CODE)
-      00001E                        409 __sdcc_program_startup:
-      00001E 02 00 BD         [24]  410 	ljmp	_main
-                                    411 ;	return from main will return to caller
-                                    412 ;--------------------------------------------------------
-                                    413 ; code
-                                    414 ;--------------------------------------------------------
-                                    415 	.area CSEG    (CODE)
-                                    416 ;------------------------------------------------------------
-                                    417 ;Allocation info for local variables in function 'main'
-                                    418 ;------------------------------------------------------------
-                                    419 ;	src/main.c:68: void main (void)
-                                    420 ;	-----------------------------------------
-                                    421 ;	 function main
-                                    422 ;	-----------------------------------------
-      0000BD                        423 _main:
-                           000007   424 	ar7 = 0x07
-                           000006   425 	ar6 = 0x06
-                           000005   426 	ar5 = 0x05
-                           000004   427 	ar4 = 0x04
-                           000003   428 	ar3 = 0x03
-                           000002   429 	ar2 = 0x02
-                           000001   430 	ar1 = 0x01
-                           000000   431 	ar0 = 0x00
-                                    432 ;	src/main.c:70: readRangeSW();
-      0000BD 12 01 09         [24]  433 	lcall	_readRangeSW
-                                    434 ;	src/main.c:71: init_GPIO();
-      0000C0 12 00 DA         [24]  435 	lcall	_init_GPIO
-                                    436 ;	src/main.c:72: init_TC0();
-      0000C3 12 00 E1         [24]  437 	lcall	_init_TC0
-                                    438 ;	src/main.c:73: init_TC1();
-      0000C6 12 00 F3         [24]  439 	lcall	_init_TC1
-                                    440 ;	src/main.c:75: update();
-      0000C9 12 01 57         [24]  441 	lcall	_update
-                                    442 ;	src/main.c:76: while (1)
-      0000CC                        443 00102$:
-                                    444 ;	src/main.c:78: readRangeSW();
-      0000CC 12 01 09         [24]  445 	lcall	_readRangeSW
-                                    446 ;	src/main.c:79: readResetButton();
-      0000CF 12 01 37         [24]  447 	lcall	_readResetButton
-                                    448 ;	src/main.c:80: delay_ms(20);
-      0000D2 90 00 14         [24]  449 	mov	dptr,#0x0014
-      0000D5 12 03 25         [24]  450 	lcall	_delay_ms
-      0000D8 80 F2            [24]  451 	sjmp	00102$
-                                    452 ;------------------------------------------------------------
-                                    453 ;Allocation info for local variables in function 'init_GPIO'
-                                    454 ;------------------------------------------------------------
-                                    455 ;	src/main.c:84: void init_GPIO(void)
-                                    456 ;	-----------------------------------------
-                                    457 ;	 function init_GPIO
-                                    458 ;	-----------------------------------------
-      0000DA                        459 _init_GPIO:
-                                    460 ;	src/main.c:86: RESET = 0;
-      0000DA C2 B7            [12]  461 	clr	_P3_7
-                                    462 ;	src/main.c:87: COM = 1;
-      0000DC D2 B1            [12]  463 	setb	_P3_1
-                                    464 ;	src/main.c:88: RANGE_SW = 1;
-      0000DE D2 B0            [12]  465 	setb	_P3_0
-      0000E0 22               [24]  466 	ret
-                                    467 ;------------------------------------------------------------
-                                    468 ;Allocation info for local variables in function 'init_TC0'
-                                    469 ;------------------------------------------------------------
-                                    470 ;	src/main.c:92: void init_TC0(void)
-                                    471 ;	-----------------------------------------
-                                    472 ;	 function init_TC0
-                                    473 ;	-----------------------------------------
-      0000E1                        474 _init_TC0:
-                                    475 ;	src/main.c:94: ET0 = 1;         // cho phep ngat timer 0
-      0000E1 D2 A9            [12]  476 	setb	_ET0
-                                    477 ;	src/main.c:95: TMOD = 0x02;    //Sd Timer0 che do 8bit tu nap lai (ngat timer)
-      0000E3 75 89 02         [24]  478 	mov	_TMOD,#0x02
-                                    479 ;	src/main.c:96: TH0 = 0x1F;      //Nap gia tri bat dau 8bit
-      0000E6 75 8C 1F         [24]  480 	mov	_TH0,#0x1F
-                                    481 ;	src/main.c:97: TL0 = 0x1F;
-      0000E9 75 8A 1F         [24]  482 	mov	_TL0,#0x1F
-                                    483 ;	src/main.c:98: TR0 = 1;         //Khoi dong timer0
-      0000EC D2 8C            [12]  484 	setb	_TR0
-                                    485 ;	src/main.c:99: ET0 = 1;         //Ngat timer0
-      0000EE D2 A9            [12]  486 	setb	_ET0
-                                    487 ;	src/main.c:100: EA = 1;          // cho phep ngat toan cuc
-      0000F0 D2 AF            [12]  488 	setb	_EA
-      0000F2 22               [24]  489 	ret
-                                    490 ;------------------------------------------------------------
-                                    491 ;Allocation info for local variables in function 'init_TC1'
-                                    492 ;------------------------------------------------------------
-                                    493 ;	src/main.c:104: void init_TC1(void)
-                                    494 ;	-----------------------------------------
-                                    495 ;	 function init_TC1
-                                    496 ;	-----------------------------------------
-      0000F3                        497 _init_TC1:
-                                    498 ;	src/main.c:106: ET1 = 1;         // cho phep ngat timer 1
-      0000F3 D2 AB            [12]  499 	setb	_ET1
-                                    500 ;	src/main.c:107: TMOD |= 0x10;    //Use Timer1 at 16-bit timer mode.
-      0000F5 43 89 10         [24]  501 	orl	_TMOD,#0x10
-                                    502 ;	src/main.c:108: setTimer1Value();
-      0000F8 12 01 02         [24]  503 	lcall	_setTimer1Value
-                                    504 ;	src/main.c:109: TR1 = 1;         //Khoi dong timer1
-      0000FB D2 8E            [12]  505 	setb	_TR1
-                                    506 ;	src/main.c:110: ET1 = 1;         //Ngat timer1
-      0000FD D2 AB            [12]  507 	setb	_ET1
-                                    508 ;	src/main.c:111: EA = 1;          // cho phep ngat toan cuc
-      0000FF D2 AF            [12]  509 	setb	_EA
-      000101 22               [24]  510 	ret
-                                    511 ;------------------------------------------------------------
-                                    512 ;Allocation info for local variables in function 'setTimer1Value'
-                                    513 ;------------------------------------------------------------
-                                    514 ;	src/main.c:114: void setTimer1Value(void)
-                                    515 ;	-----------------------------------------
-                                    516 ;	 function setTimer1Value
-                                    517 ;	-----------------------------------------
-      000102                        518 _setTimer1Value:
-                                    519 ;	src/main.c:117: TH1 = 0x03;
-      000102 75 8D 03         [24]  520 	mov	_TH1,#0x03
-                                    521 ;	src/main.c:118: TL1 = 0x8E;
-      000105 75 8B 8E         [24]  522 	mov	_TL1,#0x8E
-      000108 22               [24]  523 	ret
-                                    524 ;------------------------------------------------------------
-                                    525 ;Allocation info for local variables in function 'readRangeSW'
-                                    526 ;------------------------------------------------------------
-                                    527 ;	src/main.c:121: void readRangeSW(void)
-                                    528 ;	-----------------------------------------
-                                    529 ;	 function readRangeSW
-                                    530 ;	-----------------------------------------
-      000109                        531 _readRangeSW:
-                                    532 ;	src/main.c:123: if (range_mode != RANGE_SW) {
-      000109 A2 00            [12]  533 	mov	c,_range_mode
-      00010B 20 B0 01         [24]  534 	jb	_P3_0,00119$
-      00010E B3               [12]  535 	cpl	c
-      00010F                        536 00119$:
-      00010F 40 25            [24]  537 	jc	00108$
-                                    538 ;	src/main.c:124: delay_ms(50);
-      000111 90 00 32         [24]  539 	mov	dptr,#0x0032
-      000114 12 03 25         [24]  540 	lcall	_delay_ms
-                                    541 ;	src/main.c:125: if (range_mode != RANGE_SW){
-      000117 A2 00            [12]  542 	mov	c,_range_mode
-      000119 20 B0 01         [24]  543 	jb	_P3_0,00121$
-      00011C B3               [12]  544 	cpl	c
-      00011D                        545 00121$:
-      00011D 40 17            [24]  546 	jc	00108$
-                                    547 ;	src/main.c:126: range_mode = RANGE_SW;
-      00011F A2 B0            [12]  548 	mov	c,_P3_0
-                                    549 ;	src/main.c:127: if (range_mode == 1) {
-      000121 92 00            [24]  550 	mov	_range_mode,c
-      000123 50 08            [24]  551 	jnc	00102$
-                                    552 ;	src/main.c:128: factor = 100;
-      000125 75 2C 64         [24]  553 	mov	_factor,#0x64
-      000128 75 2D 00         [24]  554 	mov	(_factor + 1),#0x00
-      00012B 80 06            [24]  555 	sjmp	00103$
-      00012D                        556 00102$:
-                                    557 ;	src/main.c:130: factor = 1000;
-      00012D 75 2C E8         [24]  558 	mov	_factor,#0xE8
-      000130 75 2D 03         [24]  559 	mov	(_factor + 1),#0x03
-      000133                        560 00103$:
-                                    561 ;	src/main.c:133: update();
-      000133 02 01 57         [24]  562 	ljmp	_update
-      000136                        563 00108$:
-      000136 22               [24]  564 	ret
-                                    565 ;------------------------------------------------------------
-                                    566 ;Allocation info for local variables in function 'readResetButton'
-                                    567 ;------------------------------------------------------------
-                                    568 ;	src/main.c:138: void readResetButton()
-                                    569 ;	-----------------------------------------
-                                    570 ;	 function readResetButton
-                                    571 ;	-----------------------------------------
-      000137                        572 _readResetButton:
-                                    573 ;	src/main.c:140: if (RESET == 1) {
-      000137 30 B7 14         [24]  574 	jnb	_P3_7,00106$
-                                    575 ;	src/main.c:141: delay_ms(20);
-      00013A 90 00 14         [24]  576 	mov	dptr,#0x0014
-      00013D 12 03 25         [24]  577 	lcall	_delay_ms
-                                    578 ;	src/main.c:142: while (RESET == 1){
-      000140                        579 00101$:
-      000140 30 B7 08         [24]  580 	jnb	_P3_7,00103$
-                                    581 ;	src/main.c:143: delay_ms(10);
-      000143 90 00 0A         [24]  582 	mov	dptr,#0x000A
-      000146 12 03 25         [24]  583 	lcall	_delay_ms
-      000149 80 F5            [24]  584 	sjmp	00101$
-      00014B                        585 00103$:
-                                    586 ;	src/main.c:145: resetTime();
-      00014B 02 01 4F         [24]  587 	ljmp	_resetTime
-      00014E                        588 00106$:
-      00014E 22               [24]  589 	ret
-                                    590 ;------------------------------------------------------------
-                                    591 ;Allocation info for local variables in function 'resetTime'
-                                    592 ;------------------------------------------------------------
-                                    593 ;	src/main.c:149: void resetTime()
-                                    594 ;	-----------------------------------------
-                                    595 ;	 function resetTime
-                                    596 ;	-----------------------------------------
-      00014F                        597 _resetTime:
-                                    598 ;	src/main.c:151: time = 0;
-      00014F E4               [12]  599 	clr	a
-      000150 F5 2E            [12]  600 	mov	_time,a
-      000152 F5 2F            [12]  601 	mov	(_time + 1),a
-                                    602 ;	src/main.c:152: update();
-      000154 02 01 57         [24]  603 	ljmp	_update
-                                    604 ;------------------------------------------------------------
-                                    605 ;Allocation info for local variables in function 'update'
-                                    606 ;------------------------------------------------------------
-                                    607 ;	src/main.c:155: void update(void)
-                                    608 ;	-----------------------------------------
-                                    609 ;	 function update
-                                    610 ;	-----------------------------------------
-      000157                        611 _update:
-                                    612 ;	src/main.c:157: if (factor == 1000){
-      000157 74 E8            [12]  613 	mov	a,#0xE8
-      000159 B5 2C 3E         [24]  614 	cjne	a,_factor,00102$
-      00015C 74 03            [12]  615 	mov	a,#0x03
-      00015E B5 2D 39         [24]  616 	cjne	a,(_factor + 1),00102$
-                                    617 ;	src/main.c:158: time_mode0	= (time % 1000) *10 + time_1000;
-      000161 75 08 E8         [24]  618 	mov	__moduint_PARM_2,#0xE8
-      000164 75 09 03         [24]  619 	mov	(__moduint_PARM_2 + 1),#0x03
-      000167 85 2E 82         [24]  620 	mov	dpl,_time
-      00016A 85 2F 83         [24]  621 	mov	dph,(_time + 1)
-      00016D 12 04 3B         [24]  622 	lcall	__moduint
-      000170 85 82 08         [24]  623 	mov	__mulint_PARM_2,dpl
-      000173 85 83 09         [24]  624 	mov	(__mulint_PARM_2 + 1),dph
-      000176 90 00 0A         [24]  625 	mov	dptr,#0x000A
-      000179 12 04 1E         [24]  626 	lcall	__mulint
-      00017C E5 82            [12]  627 	mov	a,dpl
-      00017E 85 83 F0         [24]  628 	mov	b,dph
-      000181 25 30            [12]  629 	add	a,_time_1000
-      000183 F5 32            [12]  630 	mov	_time_mode0,a
-      000185 E5 31            [12]  631 	mov	a,(_time_1000 + 1)
-      000187 35 F0            [12]  632 	addc	a,b
-      000189 F5 33            [12]  633 	mov	(_time_mode0 + 1),a
-                                    634 ;	src/main.c:159: setDisplay(time_mode0, factor);
-      00018B 85 2C 40         [24]  635 	mov	_setDisplay_PARM_2,_factor
-      00018E 85 2D 41         [24]  636 	mov	(_setDisplay_PARM_2 + 1),(_factor + 1)
-      000191 85 32 82         [24]  637 	mov	dpl,_time_mode0
-      000194 85 33 83         [24]  638 	mov	dph,(_time_mode0 + 1)
-      000197 02 01 A9         [24]  639 	ljmp	_setDisplay
-      00019A                        640 00102$:
-                                    641 ;	src/main.c:161: setDisplay(time, factor);
-      00019A 85 2C 40         [24]  642 	mov	_setDisplay_PARM_2,_factor
-      00019D 85 2D 41         [24]  643 	mov	(_setDisplay_PARM_2 + 1),(_factor + 1)
-      0001A0 85 2E 82         [24]  644 	mov	dpl,_time
-      0001A3 85 2F 83         [24]  645 	mov	dph,(_time + 1)
-      0001A6 02 01 A9         [24]  646 	ljmp	_setDisplay
-                                    647 ;------------------------------------------------------------
-                                    648 ;Allocation info for local variables in function 'setDisplay'
-                                    649 ;------------------------------------------------------------
-                                    650 ;f                         Allocated with name '_setDisplay_PARM_2'
-                                    651 ;number                    Allocated to registers r6 r7 
-                                    652 ;------------------------------------------------------------
-                                    653 ;	src/main.c:165: void setDisplay(unsigned int number, unsigned int f)
-                                    654 ;	-----------------------------------------
-                                    655 ;	 function setDisplay
-                                    656 ;	-----------------------------------------
-      0001A9                        657 _setDisplay:
-                                    658 ;	src/main.c:167: digitVal_1 = number % 10;
-      0001A9 AE 82            [24]  659 	mov	r6,dpl
-      0001AB AF 83            [24]  660 	mov	r7,dph
-      0001AD 75 08 0A         [24]  661 	mov	__moduint_PARM_2,#0x0A
-      0001B0 75 09 00         [24]  662 	mov	(__moduint_PARM_2 + 1),#0x00
-      0001B3 C0 07            [24]  663 	push	ar7
-      0001B5 C0 06            [24]  664 	push	ar6
-      0001B7 12 04 3B         [24]  665 	lcall	__moduint
-      0001BA 85 82 34         [24]  666 	mov	_digitVal_1,dpl
-      0001BD 85 83 35         [24]  667 	mov	(_digitVal_1 + 1),dph
-      0001C0 D0 06            [24]  668 	pop	ar6
-      0001C2 D0 07            [24]  669 	pop	ar7
-                                    670 ;	src/main.c:168: digitVal_2 = (number /10) % 10;
-      0001C4 75 08 0A         [24]  671 	mov	__divuint_PARM_2,#0x0A
-      0001C7 75 09 00         [24]  672 	mov	(__divuint_PARM_2 + 1),#0x00
-      0001CA 8E 82            [24]  673 	mov	dpl,r6
-      0001CC 8F 83            [24]  674 	mov	dph,r7
-      0001CE C0 07            [24]  675 	push	ar7
-      0001D0 C0 06            [24]  676 	push	ar6
-      0001D2 12 03 F5         [24]  677 	lcall	__divuint
-      0001D5 75 08 0A         [24]  678 	mov	__moduint_PARM_2,#0x0A
-      0001D8 75 09 00         [24]  679 	mov	(__moduint_PARM_2 + 1),#0x00
-      0001DB 12 04 3B         [24]  680 	lcall	__moduint
-      0001DE 85 82 36         [24]  681 	mov	_digitVal_2,dpl
-      0001E1 85 83 37         [24]  682 	mov	(_digitVal_2 + 1),dph
-      0001E4 D0 06            [24]  683 	pop	ar6
-      0001E6 D0 07            [24]  684 	pop	ar7
-                                    685 ;	src/main.c:169: digitVal_3 = (number /100) % 10;
-      0001E8 75 08 64         [24]  686 	mov	__divuint_PARM_2,#0x64
-      0001EB 75 09 00         [24]  687 	mov	(__divuint_PARM_2 + 1),#0x00
-      0001EE 8E 82            [24]  688 	mov	dpl,r6
-      0001F0 8F 83            [24]  689 	mov	dph,r7
-      0001F2 C0 07            [24]  690 	push	ar7
-      0001F4 C0 06            [24]  691 	push	ar6
-      0001F6 12 03 F5         [24]  692 	lcall	__divuint
-      0001F9 75 08 0A         [24]  693 	mov	__moduint_PARM_2,#0x0A
-      0001FC 75 09 00         [24]  694 	mov	(__moduint_PARM_2 + 1),#0x00
-      0001FF 12 04 3B         [24]  695 	lcall	__moduint
-      000202 85 82 38         [24]  696 	mov	_digitVal_3,dpl
-      000205 85 83 39         [24]  697 	mov	(_digitVal_3 + 1),dph
-      000208 D0 06            [24]  698 	pop	ar6
-      00020A D0 07            [24]  699 	pop	ar7
-                                    700 ;	src/main.c:170: digitVal_4 = (number /1000) % 10;
-      00020C 75 08 E8         [24]  701 	mov	__divuint_PARM_2,#0xE8
-      00020F 75 09 03         [24]  702 	mov	(__divuint_PARM_2 + 1),#0x03
-      000212 8E 82            [24]  703 	mov	dpl,r6
-      000214 8F 83            [24]  704 	mov	dph,r7
-      000216 12 03 F5         [24]  705 	lcall	__divuint
-      000219 75 08 0A         [24]  706 	mov	__moduint_PARM_2,#0x0A
-      00021C 75 09 00         [24]  707 	mov	(__moduint_PARM_2 + 1),#0x00
-      00021F 12 04 3B         [24]  708 	lcall	__moduint
-      000222 85 82 3A         [24]  709 	mov	_digitVal_4,dpl
-      000225 85 83 3B         [24]  710 	mov	(_digitVal_4 + 1),dph
-                                    711 ;	src/main.c:172: if (f == 1){
-      000228 74 01            [12]  712 	mov	a,#0x01
-      00022A B5 40 06         [24]  713 	cjne	a,_setDisplay_PARM_2,00126$
-      00022D E4               [12]  714 	clr	a
-      00022E B5 41 02         [24]  715 	cjne	a,(_setDisplay_PARM_2 + 1),00126$
-      000231 80 02            [24]  716 	sjmp	00127$
-      000233                        717 00126$:
-      000233 80 06            [24]  718 	sjmp	00110$
-      000235                        719 00127$:
-                                    720 ;	src/main.c:173: pointIdx = 0;
-      000235 E4               [12]  721 	clr	a
-      000236 F5 3C            [12]  722 	mov	_pointIdx,a
-      000238 F5 3D            [12]  723 	mov	(_pointIdx + 1),a
-      00023A 22               [24]  724 	ret
-      00023B                        725 00110$:
-                                    726 ;	src/main.c:174: } else if (f == 10) {
-      00023B 74 0A            [12]  727 	mov	a,#0x0A
-      00023D B5 40 06         [24]  728 	cjne	a,_setDisplay_PARM_2,00128$
-      000240 E4               [12]  729 	clr	a
-      000241 B5 41 02         [24]  730 	cjne	a,(_setDisplay_PARM_2 + 1),00128$
-      000244 80 02            [24]  731 	sjmp	00129$
-      000246                        732 00128$:
-      000246 80 07            [24]  733 	sjmp	00107$
-      000248                        734 00129$:
-                                    735 ;	src/main.c:175: pointIdx = 2;
-      000248 75 3C 02         [24]  736 	mov	_pointIdx,#0x02
-      00024B 75 3D 00         [24]  737 	mov	(_pointIdx + 1),#0x00
-      00024E 22               [24]  738 	ret
-      00024F                        739 00107$:
-                                    740 ;	src/main.c:176: } else if (f == 100) {
-      00024F 74 64            [12]  741 	mov	a,#0x64
-      000251 B5 40 06         [24]  742 	cjne	a,_setDisplay_PARM_2,00130$
-      000254 E4               [12]  743 	clr	a
-      000255 B5 41 02         [24]  744 	cjne	a,(_setDisplay_PARM_2 + 1),00130$
-      000258 80 02            [24]  745 	sjmp	00131$
-      00025A                        746 00130$:
-      00025A 80 07            [24]  747 	sjmp	00104$
-      00025C                        748 00131$:
-                                    749 ;	src/main.c:177: pointIdx = 3;
-      00025C 75 3C 03         [24]  750 	mov	_pointIdx,#0x03
-      00025F 75 3D 00         [24]  751 	mov	(_pointIdx + 1),#0x00
-      000262 22               [24]  752 	ret
-      000263                        753 00104$:
-                                    754 ;	src/main.c:178: } else if (f == 1000) {
-      000263 74 E8            [12]  755 	mov	a,#0xE8
-      000265 B5 40 0B         [24]  756 	cjne	a,_setDisplay_PARM_2,00112$
-      000268 74 03            [12]  757 	mov	a,#0x03
-      00026A B5 41 06         [24]  758 	cjne	a,(_setDisplay_PARM_2 + 1),00112$
-                                    759 ;	src/main.c:179: pointIdx = 4;
-      00026D 75 3C 04         [24]  760 	mov	_pointIdx,#0x04
-      000270 75 3D 00         [24]  761 	mov	(_pointIdx + 1),#0x00
-      000273                        762 00112$:
-      000273 22               [24]  763 	ret
-                                    764 ;------------------------------------------------------------
-                                    765 ;Allocation info for local variables in function 'display'
-                                    766 ;------------------------------------------------------------
-                                    767 ;	src/main.c:183: void display(void)
-                                    768 ;	-----------------------------------------
-                                    769 ;	 function display
-                                    770 ;	-----------------------------------------
-      000274                        771 _display:
-                                    772 ;	src/main.c:185: LED7_1 = 1;
-      000274 D2 B5            [12]  773 	setb	_P3_5
-                                    774 ;	src/main.c:186: LED7_2 = 1;
-      000276 D2 B4            [12]  775 	setb	_P3_4
-                                    776 ;	src/main.c:187: LED7_3 = 1;
-      000278 D2 B3            [12]  777 	setb	_P3_3
-                                    778 ;	src/main.c:188: LED7_4 = 1;
-      00027A D2 B2            [12]  779 	setb	_P3_2
-                                    780 ;	src/main.c:189: switch (digitIdx) {
-      00027C C3               [12]  781 	clr	c
-      00027D 74 04            [12]  782 	mov	a,#0x04
-      00027F 95 3E            [12]  783 	subb	a,_digitIdx
-      000281 E4               [12]  784 	clr	a
-      000282 95 3F            [12]  785 	subb	a,(_digitIdx + 1)
-      000284 50 03            [24]  786 	jnc	00137$
-      000286 02 03 08         [24]  787 	ljmp	00113$
-      000289                        788 00137$:
-      000289 E5 3E            [12]  789 	mov	a,_digitIdx
-      00028B 75 F0 03         [24]  790 	mov	b,#0x03
-      00028E A4               [48]  791 	mul	ab
-      00028F 90 02 93         [24]  792 	mov	dptr,#00138$
-      000292 73               [24]  793 	jmp	@a+dptr
-      000293                        794 00138$:
-      000293 02 03 08         [24]  795 	ljmp	00113$
-      000296 02 02 A2         [24]  796 	ljmp	00101$
-      000299 02 02 BC         [24]  797 	ljmp	00104$
-      00029C 02 02 D6         [24]  798 	ljmp	00107$
-      00029F 02 02 F0         [24]  799 	ljmp	00110$
-                                    800 ;	src/main.c:190: case 1: {
-      0002A2                        801 00101$:
-                                    802 ;	src/main.c:191: P1 = led7[digitVal_1];
-      0002A2 E5 34            [12]  803 	mov	a,_digitVal_1
-      0002A4 24 22            [12]  804 	add	a,#_led7
-      0002A6 F9               [12]  805 	mov	r1,a
-      0002A7 87 90            [24]  806 	mov	_P1,@r1
-                                    807 ;	src/main.c:192: if (pointIdx == 1){
-      0002A9 74 01            [12]  808 	mov	a,#0x01
-      0002AB B5 3C 06         [24]  809 	cjne	a,_pointIdx,00139$
-      0002AE E4               [12]  810 	clr	a
-      0002AF B5 3D 02         [24]  811 	cjne	a,(_pointIdx + 1),00139$
-      0002B2 80 02            [24]  812 	sjmp	00140$
-      0002B4                        813 00139$:
-      0002B4 80 02            [24]  814 	sjmp	00103$
-      0002B6                        815 00140$:
-                                    816 ;	src/main.c:193: LED7DP = 0;
-      0002B6 C2 97            [12]  817 	clr	_P1_7
-      0002B8                        818 00103$:
-                                    819 ;	src/main.c:195: LED7_1 = 0;
-      0002B8 C2 B5            [12]  820 	clr	_P3_5
-                                    821 ;	src/main.c:196: break;
-                                    822 ;	src/main.c:198: case 2: {
-      0002BA 80 4C            [24]  823 	sjmp	00113$
-      0002BC                        824 00104$:
-                                    825 ;	src/main.c:199: P1 = led7[digitVal_2];
-      0002BC E5 36            [12]  826 	mov	a,_digitVal_2
-      0002BE 24 22            [12]  827 	add	a,#_led7
-      0002C0 F9               [12]  828 	mov	r1,a
-      0002C1 87 90            [24]  829 	mov	_P1,@r1
-                                    830 ;	src/main.c:200: if (pointIdx == 2){
-      0002C3 74 02            [12]  831 	mov	a,#0x02
-      0002C5 B5 3C 06         [24]  832 	cjne	a,_pointIdx,00141$
-      0002C8 E4               [12]  833 	clr	a
-      0002C9 B5 3D 02         [24]  834 	cjne	a,(_pointIdx + 1),00141$
-      0002CC 80 02            [24]  835 	sjmp	00142$
-      0002CE                        836 00141$:
-      0002CE 80 02            [24]  837 	sjmp	00106$
-      0002D0                        838 00142$:
-                                    839 ;	src/main.c:201: LED7DP = 0;
-      0002D0 C2 97            [12]  840 	clr	_P1_7
-      0002D2                        841 00106$:
-                                    842 ;	src/main.c:203: LED7_2 = 0;
-      0002D2 C2 B4            [12]  843 	clr	_P3_4
-                                    844 ;	src/main.c:204: break;
-                                    845 ;	src/main.c:206: case 3: {
-      0002D4 80 32            [24]  846 	sjmp	00113$
-      0002D6                        847 00107$:
-                                    848 ;	src/main.c:207: P1 = led7[digitVal_3];
-      0002D6 E5 38            [12]  849 	mov	a,_digitVal_3
-      0002D8 24 22            [12]  850 	add	a,#_led7
-      0002DA F9               [12]  851 	mov	r1,a
-      0002DB 87 90            [24]  852 	mov	_P1,@r1
-                                    853 ;	src/main.c:208: if (pointIdx == 3){
-      0002DD 74 03            [12]  854 	mov	a,#0x03
-      0002DF B5 3C 06         [24]  855 	cjne	a,_pointIdx,00143$
-      0002E2 E4               [12]  856 	clr	a
-      0002E3 B5 3D 02         [24]  857 	cjne	a,(_pointIdx + 1),00143$
-      0002E6 80 02            [24]  858 	sjmp	00144$
-      0002E8                        859 00143$:
-      0002E8 80 02            [24]  860 	sjmp	00109$
-      0002EA                        861 00144$:
-                                    862 ;	src/main.c:209: LED7DP = 0;
-      0002EA C2 97            [12]  863 	clr	_P1_7
-      0002EC                        864 00109$:
-                                    865 ;	src/main.c:211: LED7_3 = 0;
-      0002EC C2 B3            [12]  866 	clr	_P3_3
-                                    867 ;	src/main.c:212: break;
-                                    868 ;	src/main.c:214: case 4: {
-      0002EE 80 18            [24]  869 	sjmp	00113$
-      0002F0                        870 00110$:
-                                    871 ;	src/main.c:215: P1 = led7[digitVal_4];
-      0002F0 E5 3A            [12]  872 	mov	a,_digitVal_4
-      0002F2 24 22            [12]  873 	add	a,#_led7
-      0002F4 F9               [12]  874 	mov	r1,a
-      0002F5 87 90            [24]  875 	mov	_P1,@r1
-                                    876 ;	src/main.c:216: if (pointIdx == 4){
-      0002F7 74 04            [12]  877 	mov	a,#0x04
-      0002F9 B5 3C 06         [24]  878 	cjne	a,_pointIdx,00145$
-      0002FC E4               [12]  879 	clr	a
-      0002FD B5 3D 02         [24]  880 	cjne	a,(_pointIdx + 1),00145$
-      000300 80 02            [24]  881 	sjmp	00146$
-      000302                        882 00145$:
-      000302 80 02            [24]  883 	sjmp	00112$
-      000304                        884 00146$:
-                                    885 ;	src/main.c:217: LED7DP = 0;
-      000304 C2 97            [12]  886 	clr	_P1_7
-      000306                        887 00112$:
-                                    888 ;	src/main.c:219: LED7_4 = 0;	
-      000306 C2 B2            [12]  889 	clr	_P3_2
-                                    890 ;	src/main.c:222: }
-      000308                        891 00113$:
-                                    892 ;	src/main.c:224: if (digitIdx == 4) {
-      000308 74 04            [12]  893 	mov	a,#0x04
-      00030A B5 3E 06         [24]  894 	cjne	a,_digitIdx,00147$
-      00030D E4               [12]  895 	clr	a
-      00030E B5 3F 02         [24]  896 	cjne	a,(_digitIdx + 1),00147$
-      000311 80 02            [24]  897 	sjmp	00148$
-      000313                        898 00147$:
-      000313 80 07            [24]  899 	sjmp	00115$
-      000315                        900 00148$:
-                                    901 ;	src/main.c:225: digitIdx = 1;
-      000315 75 3E 01         [24]  902 	mov	_digitIdx,#0x01
-      000318 75 3F 00         [24]  903 	mov	(_digitIdx + 1),#0x00
-      00031B 22               [24]  904 	ret
-      00031C                        905 00115$:
-                                    906 ;	src/main.c:227: digitIdx++;
-      00031C 05 3E            [12]  907 	inc	_digitIdx
-      00031E E4               [12]  908 	clr	a
-      00031F B5 3E 02         [24]  909 	cjne	a,_digitIdx,00149$
-      000322 05 3F            [12]  910 	inc	(_digitIdx + 1)
-      000324                        911 00149$:
-      000324 22               [24]  912 	ret
-                                    913 ;------------------------------------------------------------
-                                    914 ;Allocation info for local variables in function 'delay_ms'
-                                    915 ;------------------------------------------------------------
-                                    916 ;itime                     Allocated to registers r6 r7 
-                                    917 ;i                         Allocated to registers r4 r5 
-                                    918 ;j                         Allocated to registers r2 r3 
-                                    919 ;d                         Allocated to registers 
-                                    920 ;------------------------------------------------------------
-                                    921 ;	src/main.c:231: void delay_ms(unsigned int itime)
-                                    922 ;	-----------------------------------------
-                                    923 ;	 function delay_ms
-                                    924 ;	-----------------------------------------
-      000325                        925 _delay_ms:
-      000325 AE 82            [24]  926 	mov	r6,dpl
-      000327 AF 83            [24]  927 	mov	r7,dph
-                                    928 ;	src/main.c:235: for (i=0;i < itime;i++) {
-      000329 7C 00            [12]  929 	mov	r4,#0x00
-      00032B 7D 00            [12]  930 	mov	r5,#0x00
-      00032D                        931 00107$:
-      00032D C3               [12]  932 	clr	c
-      00032E EC               [12]  933 	mov	a,r4
-      00032F 9E               [12]  934 	subb	a,r6
-      000330 ED               [12]  935 	mov	a,r5
-      000331 9F               [12]  936 	subb	a,r7
-      000332 50 1B            [24]  937 	jnc	00109$
-                                    938 ;	src/main.c:236: for(j=0;j<1275;j++) {
-      000334 7A FB            [12]  939 	mov	r2,#0xFB
-      000336 7B 04            [12]  940 	mov	r3,#0x04
-      000338                        941 00105$:
-                                    942 ;	src/main.c:237: d=0;
-      000338 EA               [12]  943 	mov	a,r2
-      000339 24 FF            [12]  944 	add	a,#0xFF
-      00033B F8               [12]  945 	mov	r0,a
-      00033C EB               [12]  946 	mov	a,r3
-      00033D 34 FF            [12]  947 	addc	a,#0xFF
-      00033F F9               [12]  948 	mov	r1,a
-      000340 88 02            [24]  949 	mov	ar2,r0
-      000342 89 03            [24]  950 	mov	ar3,r1
-                                    951 ;	src/main.c:236: for(j=0;j<1275;j++) {
-      000344 E8               [12]  952 	mov	a,r0
-      000345 49               [12]  953 	orl	a,r1
-      000346 70 F0            [24]  954 	jnz	00105$
-                                    955 ;	src/main.c:235: for (i=0;i < itime;i++) {
-      000348 0C               [12]  956 	inc	r4
-      000349 BC 00 E1         [24]  957 	cjne	r4,#0x00,00107$
-      00034C 0D               [12]  958 	inc	r5
-      00034D 80 DE            [24]  959 	sjmp	00107$
-      00034F                        960 00109$:
-      00034F 22               [24]  961 	ret
-                                    962 ;------------------------------------------------------------
-                                    963 ;Allocation info for local variables in function 'ISR_ET0'
-                                    964 ;------------------------------------------------------------
-                                    965 ;	src/main.c:243: void ISR_ET0 (void) __interrupt 1 
-                                    966 ;	-----------------------------------------
-                                    967 ;	 function ISR_ET0
-                                    968 ;	-----------------------------------------
-      000350                        969 _ISR_ET0:
-      000350 C0 21            [24]  970 	push	bits
-      000352 C0 E0            [24]  971 	push	acc
-      000354 C0 F0            [24]  972 	push	b
-      000356 C0 82            [24]  973 	push	dpl
-      000358 C0 83            [24]  974 	push	dph
-      00035A C0 07            [24]  975 	push	(0+7)
-      00035C C0 06            [24]  976 	push	(0+6)
-      00035E C0 05            [24]  977 	push	(0+5)
-      000360 C0 04            [24]  978 	push	(0+4)
-      000362 C0 03            [24]  979 	push	(0+3)
-      000364 C0 02            [24]  980 	push	(0+2)
-      000366 C0 01            [24]  981 	push	(0+1)
-      000368 C0 00            [24]  982 	push	(0+0)
-      00036A C0 D0            [24]  983 	push	psw
-      00036C 75 D0 00         [24]  984 	mov	psw,#0x00
-                                    985 ;	src/main.c:245: display();
-      00036F 12 02 74         [24]  986 	lcall	_display
-      000372 D0 D0            [24]  987 	pop	psw
-      000374 D0 00            [24]  988 	pop	(0+0)
-      000376 D0 01            [24]  989 	pop	(0+1)
-      000378 D0 02            [24]  990 	pop	(0+2)
-      00037A D0 03            [24]  991 	pop	(0+3)
-      00037C D0 04            [24]  992 	pop	(0+4)
-      00037E D0 05            [24]  993 	pop	(0+5)
-      000380 D0 06            [24]  994 	pop	(0+6)
-      000382 D0 07            [24]  995 	pop	(0+7)
-      000384 D0 83            [24]  996 	pop	dph
-      000386 D0 82            [24]  997 	pop	dpl
-      000388 D0 F0            [24]  998 	pop	b
-      00038A D0 E0            [24]  999 	pop	acc
-      00038C D0 21            [24] 1000 	pop	bits
-      00038E 32               [24] 1001 	reti
-                                   1002 ;------------------------------------------------------------
-                                   1003 ;Allocation info for local variables in function 'ISR_ET1'
-                                   1004 ;------------------------------------------------------------
-                                   1005 ;	src/main.c:249: void ISR_ET1 (void) __interrupt 3
-                                   1006 ;	-----------------------------------------
-                                   1007 ;	 function ISR_ET1
-                                   1008 ;	-----------------------------------------
-      00038F                       1009 _ISR_ET1:
-      00038F C0 21            [24] 1010 	push	bits
-      000391 C0 E0            [24] 1011 	push	acc
-      000393 C0 F0            [24] 1012 	push	b
-      000395 C0 82            [24] 1013 	push	dpl
-      000397 C0 83            [24] 1014 	push	dph
-      000399 C0 07            [24] 1015 	push	(0+7)
-      00039B C0 06            [24] 1016 	push	(0+6)
-      00039D C0 05            [24] 1017 	push	(0+5)
-      00039F C0 04            [24] 1018 	push	(0+4)
-      0003A1 C0 03            [24] 1019 	push	(0+3)
-      0003A3 C0 02            [24] 1020 	push	(0+2)
-      0003A5 C0 01            [24] 1021 	push	(0+1)
-      0003A7 C0 00            [24] 1022 	push	(0+0)
-      0003A9 C0 D0            [24] 1023 	push	psw
-      0003AB 75 D0 00         [24] 1024 	mov	psw,#0x00
-                                   1025 ;	src/main.c:251: if (COM == 1){
-      0003AE 30 B1 24         [24] 1026 	jnb	_P3_1,00104$
-                                   1027 ;	src/main.c:252: time_1000++;
-      0003B1 05 30            [12] 1028 	inc	_time_1000
-      0003B3 E4               [12] 1029 	clr	a
-      0003B4 B5 30 02         [24] 1030 	cjne	a,_time_1000,00114$
-      0003B7 05 31            [12] 1031 	inc	(_time_1000 + 1)
-      0003B9                       1032 00114$:
-                                   1033 ;	src/main.c:253: if (time_1000 == 10) {
-      0003B9 74 0A            [12] 1034 	mov	a,#0x0A
-      0003BB B5 30 06         [24] 1035 	cjne	a,_time_1000,00115$
-      0003BE E4               [12] 1036 	clr	a
-      0003BF B5 31 02         [24] 1037 	cjne	a,(_time_1000 + 1),00115$
-      0003C2 80 02            [24] 1038 	sjmp	00116$
-      0003C4                       1039 00115$:
-      0003C4 80 0C            [24] 1040 	sjmp	00102$
-      0003C6                       1041 00116$:
-                                   1042 ;	src/main.c:254: time_1000 = 0;
-      0003C6 E4               [12] 1043 	clr	a
-      0003C7 F5 30            [12] 1044 	mov	_time_1000,a
-      0003C9 F5 31            [12] 1045 	mov	(_time_1000 + 1),a
-                                   1046 ;	src/main.c:255: time++;	
-      0003CB 05 2E            [12] 1047 	inc	_time
-                                   1048 ;	genFromRTrack removed	clr	a
-      0003CD B5 2E 02         [24] 1049 	cjne	a,_time,00117$
-      0003D0 05 2F            [12] 1050 	inc	(_time + 1)
-      0003D2                       1051 00117$:
-      0003D2                       1052 00102$:
-                                   1053 ;	src/main.c:257: update();
-      0003D2 12 01 57         [24] 1054 	lcall	_update
-      0003D5                       1055 00104$:
-                                   1056 ;	src/main.c:259: setTimer1Value();
-      0003D5 12 01 02         [24] 1057 	lcall	_setTimer1Value
-      0003D8 D0 D0            [24] 1058 	pop	psw
-      0003DA D0 00            [24] 1059 	pop	(0+0)
-      0003DC D0 01            [24] 1060 	pop	(0+1)
-      0003DE D0 02            [24] 1061 	pop	(0+2)
-      0003E0 D0 03            [24] 1062 	pop	(0+3)
-      0003E2 D0 04            [24] 1063 	pop	(0+4)
-      0003E4 D0 05            [24] 1064 	pop	(0+5)
-      0003E6 D0 06            [24] 1065 	pop	(0+6)
-      0003E8 D0 07            [24] 1066 	pop	(0+7)
-      0003EA D0 83            [24] 1067 	pop	dph
-      0003EC D0 82            [24] 1068 	pop	dpl
-      0003EE D0 F0            [24] 1069 	pop	b
-      0003F0 D0 E0            [24] 1070 	pop	acc
-      0003F2 D0 21            [24] 1071 	pop	bits
-      0003F4 32               [24] 1072 	reti
-                                   1073 	.area CSEG    (CODE)
-                                   1074 	.area CONST   (CODE)
-                                   1075 	.area XINIT   (CODE)
-                                   1076 	.area CABS    (ABS,CODE)
+                                    306 ; bit data
+                                    307 ;--------------------------------------------------------
+                                    308 	.area BSEG    (BIT)
+      000000                        309 _range_mode::
+      000000                        310 	.ds 1
+      000001                        311 _mode_tmp::
+      000001                        312 	.ds 1
+                                    313 ;--------------------------------------------------------
+                                    314 ; paged external ram data
+                                    315 ;--------------------------------------------------------
+                                    316 	.area PSEG    (PAG,XDATA)
+                                    317 ;--------------------------------------------------------
+                                    318 ; external ram data
+                                    319 ;--------------------------------------------------------
+                                    320 	.area XSEG    (XDATA)
+                                    321 ;--------------------------------------------------------
+                                    322 ; absolute external ram data
+                                    323 ;--------------------------------------------------------
+                                    324 	.area XABS    (ABS,XDATA)
+                                    325 ;--------------------------------------------------------
+                                    326 ; external initialized ram data
+                                    327 ;--------------------------------------------------------
+                                    328 	.area XISEG   (XDATA)
+                                    329 	.area HOME    (CODE)
+                                    330 	.area GSINIT0 (CODE)
+                                    331 	.area GSINIT1 (CODE)
+                                    332 	.area GSINIT2 (CODE)
+                                    333 	.area GSINIT3 (CODE)
+                                    334 	.area GSINIT4 (CODE)
+                                    335 	.area GSINIT5 (CODE)
+                                    336 	.area GSINIT  (CODE)
+                                    337 	.area GSFINAL (CODE)
+                                    338 	.area CSEG    (CODE)
+                                    339 ;--------------------------------------------------------
+                                    340 ; interrupt vector 
+                                    341 ;--------------------------------------------------------
+                                    342 	.area HOME    (CODE)
+      000000                        343 __interrupt_vect:
+      000000 02 00 21         [24]  344 	ljmp	__sdcc_gsinit_startup
+      000003 32               [24]  345 	reti
+      000004                        346 	.ds	7
+      00000B 02 03 DF         [24]  347 	ljmp	_ISR_ET0
+      00000E                        348 	.ds	5
+      000013 32               [24]  349 	reti
+      000014                        350 	.ds	7
+      00001B 02 04 37         [24]  351 	ljmp	_ISR_ET1
+                                    352 ;--------------------------------------------------------
+                                    353 ; global & static initialisations
+                                    354 ;--------------------------------------------------------
+                                    355 	.area HOME    (CODE)
+                                    356 	.area GSINIT  (CODE)
+                                    357 	.area GSFINAL (CODE)
+                                    358 	.area GSINIT  (CODE)
+                                    359 	.globl __sdcc_gsinit_startup
+                                    360 	.globl __sdcc_program_startup
+                                    361 	.globl __start__stack
+                                    362 	.globl __mcs51_genXINIT
+                                    363 	.globl __mcs51_genXRAMCLEAR
+                                    364 	.globl __mcs51_genRAMCLEAR
+                                    365 ;	src/main.c:36: uint8_t led7[10] = { 0x84, 0x9F, 0xC8, 0x89, 0x93, 0xA1, 0xA0, 0x8F, 0x80, 0x81 };
+      00007A 75 22 84         [24]  366 	mov	_led7,#0x84
+      00007D 75 23 9F         [24]  367 	mov	(_led7 + 0x0001),#0x9F
+      000080 75 24 C8         [24]  368 	mov	(_led7 + 0x0002),#0xC8
+      000083 75 25 89         [24]  369 	mov	(_led7 + 0x0003),#0x89
+      000086 75 26 93         [24]  370 	mov	(_led7 + 0x0004),#0x93
+      000089 75 27 A1         [24]  371 	mov	(_led7 + 0x0005),#0xA1
+      00008C 75 28 A0         [24]  372 	mov	(_led7 + 0x0006),#0xA0
+      00008F 75 29 8F         [24]  373 	mov	(_led7 + 0x0007),#0x8F
+      000092 75 2A 80         [24]  374 	mov	(_led7 + 0x0008),#0x80
+      000095 75 2B 81         [24]  375 	mov	(_led7 + 0x0009),#0x81
+                                    376 ;	src/main.c:42: unsigned int factor = 100;
+      000098 75 2C 64         [24]  377 	mov	_factor,#0x64
+      00009B 75 2D 00         [24]  378 	mov	(_factor + 1),#0x00
+                                    379 ;	src/main.c:46: unsigned int time_mode1 = 0;
+      00009E E4               [12]  380 	clr	a
+      00009F F5 2E            [12]  381 	mov	_time_mode1,a
+      0000A1 F5 2F            [12]  382 	mov	(_time_mode1 + 1),a
+                                    383 ;	src/main.c:47: unsigned int time_mode0 = 0;
+      0000A3 F5 30            [12]  384 	mov	_time_mode0,a
+      0000A5 F5 31            [12]  385 	mov	(_time_mode0 + 1),a
+                                    386 ;	src/main.c:48: unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
+      0000A7 F5 38            [12]  387 	mov	_digitVal_4,a
+      0000A9 F5 39            [12]  388 	mov	(_digitVal_4 + 1),a
+                                    389 ;	src/main.c:49: unsigned int pointIdx = 0;
+      0000AB F5 3A            [12]  390 	mov	_pointIdx,a
+      0000AD F5 3B            [12]  391 	mov	(_pointIdx + 1),a
+                                    392 ;	src/main.c:50: unsigned int digitIdx = 1; // range in 1-4
+      0000AF 75 3C 01         [24]  393 	mov	_digitIdx,#0x01
+                                    394 ;	1-genFromRTrack replaced	mov	(_digitIdx + 1),#0x00
+      0000B2 F5 3D            [12]  395 	mov	(_digitIdx + 1),a
+                                    396 ;	src/main.c:41: __bit range_mode = 1;
+      0000B4 D2 00            [12]  397 	setb	_range_mode
+                                    398 	.area GSFINAL (CODE)
+      0000B6 02 00 1E         [24]  399 	ljmp	__sdcc_program_startup
+                                    400 ;--------------------------------------------------------
+                                    401 ; Home
+                                    402 ;--------------------------------------------------------
+                                    403 	.area HOME    (CODE)
+                                    404 	.area HOME    (CODE)
+      00001E                        405 __sdcc_program_startup:
+      00001E 02 00 B9         [24]  406 	ljmp	_main
+                                    407 ;	return from main will return to caller
+                                    408 ;--------------------------------------------------------
+                                    409 ; code
+                                    410 ;--------------------------------------------------------
+                                    411 	.area CSEG    (CODE)
+                                    412 ;------------------------------------------------------------
+                                    413 ;Allocation info for local variables in function 'main'
+                                    414 ;------------------------------------------------------------
+                                    415 ;	src/main.c:68: void main (void)
+                                    416 ;	-----------------------------------------
+                                    417 ;	 function main
+                                    418 ;	-----------------------------------------
+      0000B9                        419 _main:
+                           000007   420 	ar7 = 0x07
+                           000006   421 	ar6 = 0x06
+                           000005   422 	ar5 = 0x05
+                           000004   423 	ar4 = 0x04
+                           000003   424 	ar3 = 0x03
+                           000002   425 	ar2 = 0x02
+                           000001   426 	ar1 = 0x01
+                           000000   427 	ar0 = 0x00
+                                    428 ;	src/main.c:70: readRangeSW();
+      0000B9 12 01 24         [24]  429 	lcall	_readRangeSW
+                                    430 ;	src/main.c:71: init_GPIO();
+      0000BC 12 00 FA         [24]  431 	lcall	_init_GPIO
+                                    432 ;	src/main.c:74: TMOD = 0x11;
+      0000BF 75 89 11         [24]  433 	mov	_TMOD,#0x11
+                                    434 ;	src/main.c:76: ET0 = 1;
+      0000C2 D2 A9            [12]  435 	setb	_ET0
+                                    436 ;	src/main.c:77: if (range_mode == 1) {
+      0000C4 30 00 08         [24]  437 	jnb	_range_mode,00102$
+                                    438 ;	src/main.c:78: TH0 = 0xD8;
+      0000C7 75 8C D8         [24]  439 	mov	_TH0,#0xD8
+                                    440 ;	src/main.c:79: TL0 = 0xF0;
+      0000CA 75 8A F0         [24]  441 	mov	_TL0,#0xF0
+      0000CD 80 06            [24]  442 	sjmp	00103$
+      0000CF                        443 00102$:
+                                    444 ;	src/main.c:81: TH0 = 0xFC;
+      0000CF 75 8C FC         [24]  445 	mov	_TH0,#0xFC
+                                    446 ;	src/main.c:82: TL0 = 0x2F;
+      0000D2 75 8A 2F         [24]  447 	mov	_TL0,#0x2F
+      0000D5                        448 00103$:
+                                    449 ;	src/main.c:85: PT0 = 1;
+      0000D5 D2 B9            [12]  450 	setb	_PT0
+                                    451 ;	src/main.c:86: TR0 = 1;         //Khoi dong timer1
+      0000D7 D2 8C            [12]  452 	setb	_TR0
+                                    453 ;	src/main.c:87: ET0 = 1;         //Ngat timer1
+      0000D9 D2 A9            [12]  454 	setb	_ET0
+                                    455 ;	src/main.c:89: ET1 = 1;
+      0000DB D2 AB            [12]  456 	setb	_ET1
+                                    457 ;	src/main.c:90: TH1 = 0xF8;
+      0000DD 75 8D F8         [24]  458 	mov	_TH1,#0xF8
+                                    459 ;	src/main.c:91: TL1 = 0x30;
+      0000E0 75 8B 30         [24]  460 	mov	_TL1,#0x30
+                                    461 ;	src/main.c:92: TR1 = 1;
+      0000E3 D2 8E            [12]  462 	setb	_TR1
+                                    463 ;	src/main.c:93: ET1 = 1;
+      0000E5 D2 AB            [12]  464 	setb	_ET1
+                                    465 ;	src/main.c:95: EA = 1;          // cho phep ngat toan cuc
+      0000E7 D2 AF            [12]  466 	setb	_EA
+                                    467 ;	src/main.c:98: update();
+      0000E9 12 01 53         [24]  468 	lcall	_update
+                                    469 ;	src/main.c:99: while (1)
+      0000EC                        470 00105$:
+                                    471 ;	src/main.c:101: readRangeSW();
+      0000EC 12 01 24         [24]  472 	lcall	_readRangeSW
+                                    473 ;	src/main.c:102: readResetButton();
+      0000EF 12 01 37         [24]  474 	lcall	_readResetButton
+                                    475 ;	src/main.c:103: delay_ms(2);
+      0000F2 90 00 02         [24]  476 	mov	dptr,#0x0002
+      0000F5 12 03 B4         [24]  477 	lcall	_delay_ms
+      0000F8 80 F2            [24]  478 	sjmp	00105$
+                                    479 ;------------------------------------------------------------
+                                    480 ;Allocation info for local variables in function 'init_GPIO'
+                                    481 ;------------------------------------------------------------
+                                    482 ;	src/main.c:107: void init_GPIO(void)
+                                    483 ;	-----------------------------------------
+                                    484 ;	 function init_GPIO
+                                    485 ;	-----------------------------------------
+      0000FA                        486 _init_GPIO:
+                                    487 ;	src/main.c:109: RESET = 0;
+      0000FA C2 B7            [12]  488 	clr	_P3_7
+                                    489 ;	src/main.c:110: COM = 1;
+      0000FC D2 B1            [12]  490 	setb	_P3_1
+                                    491 ;	src/main.c:111: RANGE_SW = 1;
+      0000FE D2 B0            [12]  492 	setb	_P3_0
+      000100 22               [24]  493 	ret
+                                    494 ;------------------------------------------------------------
+                                    495 ;Allocation info for local variables in function 'init_TC1'
+                                    496 ;------------------------------------------------------------
+                                    497 ;	src/main.c:115: void init_TC1(void)
+                                    498 ;	-----------------------------------------
+                                    499 ;	 function init_TC1
+                                    500 ;	-----------------------------------------
+      000101                        501 _init_TC1:
+                                    502 ;	src/main.c:117: ET1 = 1;         // cho phep ngat timer 0
+      000101 D2 AB            [12]  503 	setb	_ET1
+                                    504 ;	src/main.c:119: TH1 = 0xF8;      //Nap gia tri bat dau 8bit
+      000103 75 8D F8         [24]  505 	mov	_TH1,#0xF8
+                                    506 ;	src/main.c:120: TL1 = 0x30;
+      000106 75 8B 30         [24]  507 	mov	_TL1,#0x30
+                                    508 ;	src/main.c:121: TR1 = 0;         //Khoi dong timer0
+      000109 C2 8E            [12]  509 	clr	_TR1
+                                    510 ;	src/main.c:122: ET1 = 1;         //Ngat timer0
+      00010B D2 AB            [12]  511 	setb	_ET1
+                                    512 ;	src/main.c:123: EA = 1;          // cho phep ngat toan cuc
+      00010D D2 AF            [12]  513 	setb	_EA
+      00010F 22               [24]  514 	ret
+                                    515 ;------------------------------------------------------------
+                                    516 ;Allocation info for local variables in function 'init_TC0'
+                                    517 ;------------------------------------------------------------
+                                    518 ;	src/main.c:127: void init_TC0(void)
+                                    519 ;	-----------------------------------------
+                                    520 ;	 function init_TC0
+                                    521 ;	-----------------------------------------
+      000110                        522 _init_TC0:
+                                    523 ;	src/main.c:129: ET0 = 1;         // cho phep ngat timer 1
+      000110 D2 A9            [12]  524 	setb	_ET0
+                                    525 ;	src/main.c:130: TMOD = 0x11;    //Use Timer1 at 16-bit timer mode.
+      000112 75 89 11         [24]  526 	mov	_TMOD,#0x11
+                                    527 ;	src/main.c:131: TH0 = 0xFC;
+      000115 75 8C FC         [24]  528 	mov	_TH0,#0xFC
+                                    529 ;	src/main.c:132: TL0 = 0x2F;
+      000118 75 8A 2F         [24]  530 	mov	_TL0,#0x2F
+                                    531 ;	src/main.c:133: PT0 = 1;
+      00011B D2 B9            [12]  532 	setb	_PT0
+                                    533 ;	src/main.c:134: TR0 = 1;         //Khoi dong timer1
+      00011D D2 8C            [12]  534 	setb	_TR0
+                                    535 ;	src/main.c:135: ET0 = 1;         //Ngat timer1
+      00011F D2 A9            [12]  536 	setb	_ET0
+                                    537 ;	src/main.c:136: EA = 1;          // cho phep ngat toan cuc
+      000121 D2 AF            [12]  538 	setb	_EA
+      000123 22               [24]  539 	ret
+                                    540 ;------------------------------------------------------------
+                                    541 ;Allocation info for local variables in function 'readRangeSW'
+                                    542 ;------------------------------------------------------------
+                                    543 ;	src/main.c:139: void readRangeSW(void)
+                                    544 ;	-----------------------------------------
+                                    545 ;	 function readRangeSW
+                                    546 ;	-----------------------------------------
+      000124                        547 _readRangeSW:
+                                    548 ;	src/main.c:141: if (range_mode != RANGE_SW) {
+      000124 A2 00            [12]  549 	mov	c,_range_mode
+      000126 20 B0 01         [24]  550 	jb	_P3_0,00108$
+      000129 B3               [12]  551 	cpl	c
+      00012A                        552 00108$:
+      00012A 40 0A            [24]  553 	jc	00103$
+                                    554 ;	src/main.c:142: delay_ms(2);
+      00012C 90 00 02         [24]  555 	mov	dptr,#0x0002
+      00012F 12 03 B4         [24]  556 	lcall	_delay_ms
+                                    557 ;	src/main.c:143: mode_tmp = RANGE_SW;
+      000132 A2 B0            [12]  558 	mov	c,_P3_0
+      000134 92 01            [24]  559 	mov	_mode_tmp,c
+      000136                        560 00103$:
+      000136 22               [24]  561 	ret
+                                    562 ;------------------------------------------------------------
+                                    563 ;Allocation info for local variables in function 'readResetButton'
+                                    564 ;------------------------------------------------------------
+                                    565 ;	src/main.c:161: void readResetButton()
+                                    566 ;	-----------------------------------------
+                                    567 ;	 function readResetButton
+                                    568 ;	-----------------------------------------
+      000137                        569 _readResetButton:
+                                    570 ;	src/main.c:163: if (RESET == 1) {
+      000137 30 B7 0C         [24]  571 	jnb	_P3_7,00105$
+                                    572 ;	src/main.c:164: delay_ms(1);
+      00013A 90 00 01         [24]  573 	mov	dptr,#0x0001
+      00013D 12 03 B4         [24]  574 	lcall	_delay_ms
+                                    575 ;	src/main.c:165: if (RESET == 1){
+      000140 30 B7 03         [24]  576 	jnb	_P3_7,00105$
+                                    577 ;	src/main.c:166: resetTime();
+      000143 02 01 47         [24]  578 	ljmp	_resetTime
+      000146                        579 00105$:
+      000146 22               [24]  580 	ret
+                                    581 ;------------------------------------------------------------
+                                    582 ;Allocation info for local variables in function 'resetTime'
+                                    583 ;------------------------------------------------------------
+                                    584 ;	src/main.c:171: void resetTime()
+                                    585 ;	-----------------------------------------
+                                    586 ;	 function resetTime
+                                    587 ;	-----------------------------------------
+      000147                        588 _resetTime:
+                                    589 ;	src/main.c:173: time_mode1 = 0;
+      000147 E4               [12]  590 	clr	a
+      000148 F5 2E            [12]  591 	mov	_time_mode1,a
+      00014A F5 2F            [12]  592 	mov	(_time_mode1 + 1),a
+                                    593 ;	src/main.c:174: time_mode0 = 0;
+      00014C F5 30            [12]  594 	mov	_time_mode0,a
+      00014E F5 31            [12]  595 	mov	(_time_mode0 + 1),a
+                                    596 ;	src/main.c:175: update();
+      000150 02 01 53         [24]  597 	ljmp	_update
+                                    598 ;------------------------------------------------------------
+                                    599 ;Allocation info for local variables in function 'update'
+                                    600 ;------------------------------------------------------------
+                                    601 ;	src/main.c:178: void update(void)
+                                    602 ;	-----------------------------------------
+                                    603 ;	 function update
+                                    604 ;	-----------------------------------------
+      000153                        605 _update:
+                                    606 ;	src/main.c:180: if (range_mode != mode_tmp){
+      000153 A2 00            [12]  607 	mov	c,_range_mode
+      000155 20 01 01         [24]  608 	jb	_mode_tmp,00120$
+      000158 B3               [12]  609 	cpl	c
+      000159                        610 00120$:
+      000159 50 03            [24]  611 	jnc	00121$
+      00015B 02 01 E8         [24]  612 	ljmp	00105$
+      00015E                        613 00121$:
+                                    614 ;	src/main.c:181: if (mode_tmp == 1) {
+      00015E 30 01 5C         [24]  615 	jnb	_mode_tmp,00102$
+                                    616 ;	src/main.c:182: factor = 100;
+      000161 75 2C 64         [24]  617 	mov	_factor,#0x64
+      000164 75 2D 00         [24]  618 	mov	(_factor + 1),#0x00
+                                    619 ;	src/main.c:183: time_mode1 = ((time_mode1 / 1000) % 10) * 1000 + (time_mode0 / 10) % 1000;
+      000167 75 08 E8         [24]  620 	mov	__divuint_PARM_2,#0xE8
+      00016A 75 09 03         [24]  621 	mov	(__divuint_PARM_2 + 1),#0x03
+      00016D 85 2E 82         [24]  622 	mov	dpl,_time_mode1
+      000170 85 2F 83         [24]  623 	mov	dph,(_time_mode1 + 1)
+      000173 12 04 7F         [24]  624 	lcall	__divuint
+      000176 75 08 0A         [24]  625 	mov	__moduint_PARM_2,#0x0A
+      000179 75 09 00         [24]  626 	mov	(__moduint_PARM_2 + 1),#0x00
+      00017C 12 04 C5         [24]  627 	lcall	__moduint
+      00017F 85 82 08         [24]  628 	mov	__mulint_PARM_2,dpl
+      000182 85 83 09         [24]  629 	mov	(__mulint_PARM_2 + 1),dph
+      000185 90 03 E8         [24]  630 	mov	dptr,#0x03E8
+      000188 12 04 A8         [24]  631 	lcall	__mulint
+      00018B AE 82            [24]  632 	mov	r6,dpl
+      00018D AF 83            [24]  633 	mov	r7,dph
+      00018F 75 08 0A         [24]  634 	mov	__divuint_PARM_2,#0x0A
+      000192 75 09 00         [24]  635 	mov	(__divuint_PARM_2 + 1),#0x00
+      000195 85 30 82         [24]  636 	mov	dpl,_time_mode0
+      000198 85 31 83         [24]  637 	mov	dph,(_time_mode0 + 1)
+      00019B C0 07            [24]  638 	push	ar7
+      00019D C0 06            [24]  639 	push	ar6
+      00019F 12 04 7F         [24]  640 	lcall	__divuint
+      0001A2 75 08 E8         [24]  641 	mov	__moduint_PARM_2,#0xE8
+      0001A5 75 09 03         [24]  642 	mov	(__moduint_PARM_2 + 1),#0x03
+      0001A8 12 04 C5         [24]  643 	lcall	__moduint
+      0001AB AC 82            [24]  644 	mov	r4,dpl
+      0001AD AD 83            [24]  645 	mov	r5,dph
+      0001AF D0 06            [24]  646 	pop	ar6
+      0001B1 D0 07            [24]  647 	pop	ar7
+      0001B3 EC               [12]  648 	mov	a,r4
+      0001B4 2E               [12]  649 	add	a,r6
+      0001B5 F5 2E            [12]  650 	mov	_time_mode1,a
+      0001B7 ED               [12]  651 	mov	a,r5
+      0001B8 3F               [12]  652 	addc	a,r7
+      0001B9 F5 2F            [12]  653 	mov	(_time_mode1 + 1),a
+      0001BB 80 27            [24]  654 	sjmp	00103$
+      0001BD                        655 00102$:
+                                    656 ;	src/main.c:185: factor = 1000;
+      0001BD 75 2C E8         [24]  657 	mov	_factor,#0xE8
+      0001C0 75 2D 03         [24]  658 	mov	(_factor + 1),#0x03
+                                    659 ;	src/main.c:186: time_mode0 = (time_mode1 % 1000) * 10;
+      0001C3 75 08 E8         [24]  660 	mov	__moduint_PARM_2,#0xE8
+      0001C6 75 09 03         [24]  661 	mov	(__moduint_PARM_2 + 1),#0x03
+      0001C9 85 2E 82         [24]  662 	mov	dpl,_time_mode1
+      0001CC 85 2F 83         [24]  663 	mov	dph,(_time_mode1 + 1)
+      0001CF 12 04 C5         [24]  664 	lcall	__moduint
+      0001D2 85 82 08         [24]  665 	mov	__mulint_PARM_2,dpl
+      0001D5 85 83 09         [24]  666 	mov	(__mulint_PARM_2 + 1),dph
+      0001D8 90 00 0A         [24]  667 	mov	dptr,#0x000A
+      0001DB 12 04 A8         [24]  668 	lcall	__mulint
+      0001DE 85 82 30         [24]  669 	mov	_time_mode0,dpl
+      0001E1 85 83 31         [24]  670 	mov	(_time_mode0 + 1),dph
+      0001E4                        671 00103$:
+                                    672 ;	src/main.c:189: range_mode = mode_tmp;
+      0001E4 A2 01            [12]  673 	mov	c,_mode_tmp
+      0001E6 92 00            [24]  674 	mov	_range_mode,c
+      0001E8                        675 00105$:
+                                    676 ;	src/main.c:191: if (factor == 1000){
+      0001E8 74 E8            [12]  677 	mov	a,#0xE8
+      0001EA B5 2C 14         [24]  678 	cjne	a,_factor,00107$
+      0001ED 74 03            [12]  679 	mov	a,#0x03
+      0001EF B5 2D 0F         [24]  680 	cjne	a,(_factor + 1),00107$
+                                    681 ;	src/main.c:192: setDisplay(time_mode0, factor);
+      0001F2 85 2C 3E         [24]  682 	mov	_setDisplay_PARM_2,_factor
+      0001F5 85 2D 3F         [24]  683 	mov	(_setDisplay_PARM_2 + 1),(_factor + 1)
+      0001F8 85 30 82         [24]  684 	mov	dpl,_time_mode0
+      0001FB 85 31 83         [24]  685 	mov	dph,(_time_mode0 + 1)
+      0001FE 02 02 10         [24]  686 	ljmp	_setDisplay
+      000201                        687 00107$:
+                                    688 ;	src/main.c:194: setDisplay(time_mode1, factor);
+      000201 85 2C 3E         [24]  689 	mov	_setDisplay_PARM_2,_factor
+      000204 85 2D 3F         [24]  690 	mov	(_setDisplay_PARM_2 + 1),(_factor + 1)
+      000207 85 2E 82         [24]  691 	mov	dpl,_time_mode1
+      00020A 85 2F 83         [24]  692 	mov	dph,(_time_mode1 + 1)
+      00020D 02 02 10         [24]  693 	ljmp	_setDisplay
+                                    694 ;------------------------------------------------------------
+                                    695 ;Allocation info for local variables in function 'setDisplay'
+                                    696 ;------------------------------------------------------------
+                                    697 ;f                         Allocated with name '_setDisplay_PARM_2'
+                                    698 ;number                    Allocated to registers r6 r7 
+                                    699 ;------------------------------------------------------------
+                                    700 ;	src/main.c:198: void setDisplay(unsigned int number, unsigned int f)
+                                    701 ;	-----------------------------------------
+                                    702 ;	 function setDisplay
+                                    703 ;	-----------------------------------------
+      000210                        704 _setDisplay:
+                                    705 ;	src/main.c:200: digitVal_1 = number % 10;
+      000210 AE 82            [24]  706 	mov	r6,dpl
+      000212 AF 83            [24]  707 	mov	r7,dph
+      000214 75 08 0A         [24]  708 	mov	__moduint_PARM_2,#0x0A
+      000217 75 09 00         [24]  709 	mov	(__moduint_PARM_2 + 1),#0x00
+      00021A C0 07            [24]  710 	push	ar7
+      00021C C0 06            [24]  711 	push	ar6
+      00021E 12 04 C5         [24]  712 	lcall	__moduint
+      000221 85 82 32         [24]  713 	mov	_digitVal_1,dpl
+      000224 85 83 33         [24]  714 	mov	(_digitVal_1 + 1),dph
+      000227 D0 06            [24]  715 	pop	ar6
+      000229 D0 07            [24]  716 	pop	ar7
+                                    717 ;	src/main.c:201: digitVal_2 = (number /10) % 10;
+      00022B 75 08 0A         [24]  718 	mov	__divuint_PARM_2,#0x0A
+      00022E 75 09 00         [24]  719 	mov	(__divuint_PARM_2 + 1),#0x00
+      000231 8E 82            [24]  720 	mov	dpl,r6
+      000233 8F 83            [24]  721 	mov	dph,r7
+      000235 C0 07            [24]  722 	push	ar7
+      000237 C0 06            [24]  723 	push	ar6
+      000239 12 04 7F         [24]  724 	lcall	__divuint
+      00023C 75 08 0A         [24]  725 	mov	__moduint_PARM_2,#0x0A
+      00023F 75 09 00         [24]  726 	mov	(__moduint_PARM_2 + 1),#0x00
+      000242 12 04 C5         [24]  727 	lcall	__moduint
+      000245 85 82 34         [24]  728 	mov	_digitVal_2,dpl
+      000248 85 83 35         [24]  729 	mov	(_digitVal_2 + 1),dph
+      00024B D0 06            [24]  730 	pop	ar6
+      00024D D0 07            [24]  731 	pop	ar7
+                                    732 ;	src/main.c:202: digitVal_3 = (number /100) % 10;
+      00024F 75 08 64         [24]  733 	mov	__divuint_PARM_2,#0x64
+      000252 75 09 00         [24]  734 	mov	(__divuint_PARM_2 + 1),#0x00
+      000255 8E 82            [24]  735 	mov	dpl,r6
+      000257 8F 83            [24]  736 	mov	dph,r7
+      000259 C0 07            [24]  737 	push	ar7
+      00025B C0 06            [24]  738 	push	ar6
+      00025D 12 04 7F         [24]  739 	lcall	__divuint
+      000260 75 08 0A         [24]  740 	mov	__moduint_PARM_2,#0x0A
+      000263 75 09 00         [24]  741 	mov	(__moduint_PARM_2 + 1),#0x00
+      000266 12 04 C5         [24]  742 	lcall	__moduint
+      000269 85 82 36         [24]  743 	mov	_digitVal_3,dpl
+      00026C 85 83 37         [24]  744 	mov	(_digitVal_3 + 1),dph
+      00026F D0 06            [24]  745 	pop	ar6
+      000271 D0 07            [24]  746 	pop	ar7
+                                    747 ;	src/main.c:203: if ((number < 1000) && (f !=1000)){
+      000273 C3               [12]  748 	clr	c
+      000274 EE               [12]  749 	mov	a,r6
+      000275 94 E8            [12]  750 	subb	a,#0xE8
+      000277 EF               [12]  751 	mov	a,r7
+      000278 94 03            [12]  752 	subb	a,#0x03
+      00027A 50 14            [24]  753 	jnc	00102$
+      00027C 74 E8            [12]  754 	mov	a,#0xE8
+      00027E B5 3E 07         [24]  755 	cjne	a,_setDisplay_PARM_2,00137$
+      000281 74 03            [12]  756 	mov	a,#0x03
+      000283 B5 3F 02         [24]  757 	cjne	a,(_setDisplay_PARM_2 + 1),00137$
+      000286 80 08            [24]  758 	sjmp	00102$
+      000288                        759 00137$:
+                                    760 ;	src/main.c:204: digitVal_4 = 10; // mean do not display
+      000288 75 38 0A         [24]  761 	mov	_digitVal_4,#0x0A
+      00028B 75 39 00         [24]  762 	mov	(_digitVal_4 + 1),#0x00
+      00028E 80 1C            [24]  763 	sjmp	00103$
+      000290                        764 00102$:
+                                    765 ;	src/main.c:206: digitVal_4 = (number /1000) % 10;
+      000290 75 08 E8         [24]  766 	mov	__divuint_PARM_2,#0xE8
+      000293 75 09 03         [24]  767 	mov	(__divuint_PARM_2 + 1),#0x03
+      000296 8E 82            [24]  768 	mov	dpl,r6
+      000298 8F 83            [24]  769 	mov	dph,r7
+      00029A 12 04 7F         [24]  770 	lcall	__divuint
+      00029D 75 08 0A         [24]  771 	mov	__moduint_PARM_2,#0x0A
+      0002A0 75 09 00         [24]  772 	mov	(__moduint_PARM_2 + 1),#0x00
+      0002A3 12 04 C5         [24]  773 	lcall	__moduint
+      0002A6 85 82 38         [24]  774 	mov	_digitVal_4,dpl
+      0002A9 85 83 39         [24]  775 	mov	(_digitVal_4 + 1),dph
+      0002AC                        776 00103$:
+                                    777 ;	src/main.c:209: if (f == 1){
+      0002AC 74 01            [12]  778 	mov	a,#0x01
+      0002AE B5 3E 06         [24]  779 	cjne	a,_setDisplay_PARM_2,00138$
+      0002B1 E4               [12]  780 	clr	a
+      0002B2 B5 3F 02         [24]  781 	cjne	a,(_setDisplay_PARM_2 + 1),00138$
+      0002B5 80 02            [24]  782 	sjmp	00139$
+      0002B7                        783 00138$:
+      0002B7 80 06            [24]  784 	sjmp	00114$
+      0002B9                        785 00139$:
+                                    786 ;	src/main.c:210: pointIdx = 0;
+      0002B9 E4               [12]  787 	clr	a
+      0002BA F5 3A            [12]  788 	mov	_pointIdx,a
+      0002BC F5 3B            [12]  789 	mov	(_pointIdx + 1),a
+      0002BE 22               [24]  790 	ret
+      0002BF                        791 00114$:
+                                    792 ;	src/main.c:211: } else if (f == 10) {
+      0002BF 74 0A            [12]  793 	mov	a,#0x0A
+      0002C1 B5 3E 06         [24]  794 	cjne	a,_setDisplay_PARM_2,00140$
+      0002C4 E4               [12]  795 	clr	a
+      0002C5 B5 3F 02         [24]  796 	cjne	a,(_setDisplay_PARM_2 + 1),00140$
+      0002C8 80 02            [24]  797 	sjmp	00141$
+      0002CA                        798 00140$:
+      0002CA 80 07            [24]  799 	sjmp	00111$
+      0002CC                        800 00141$:
+                                    801 ;	src/main.c:212: pointIdx = 2;
+      0002CC 75 3A 02         [24]  802 	mov	_pointIdx,#0x02
+      0002CF 75 3B 00         [24]  803 	mov	(_pointIdx + 1),#0x00
+      0002D2 22               [24]  804 	ret
+      0002D3                        805 00111$:
+                                    806 ;	src/main.c:213: } else if (f == 100) {
+      0002D3 74 64            [12]  807 	mov	a,#0x64
+      0002D5 B5 3E 06         [24]  808 	cjne	a,_setDisplay_PARM_2,00142$
+      0002D8 E4               [12]  809 	clr	a
+      0002D9 B5 3F 02         [24]  810 	cjne	a,(_setDisplay_PARM_2 + 1),00142$
+      0002DC 80 02            [24]  811 	sjmp	00143$
+      0002DE                        812 00142$:
+      0002DE 80 07            [24]  813 	sjmp	00108$
+      0002E0                        814 00143$:
+                                    815 ;	src/main.c:214: pointIdx = 3;
+      0002E0 75 3A 03         [24]  816 	mov	_pointIdx,#0x03
+      0002E3 75 3B 00         [24]  817 	mov	(_pointIdx + 1),#0x00
+      0002E6 22               [24]  818 	ret
+      0002E7                        819 00108$:
+                                    820 ;	src/main.c:215: } else if (f == 1000) {
+      0002E7 74 E8            [12]  821 	mov	a,#0xE8
+      0002E9 B5 3E 0B         [24]  822 	cjne	a,_setDisplay_PARM_2,00116$
+      0002EC 74 03            [12]  823 	mov	a,#0x03
+      0002EE B5 3F 06         [24]  824 	cjne	a,(_setDisplay_PARM_2 + 1),00116$
+                                    825 ;	src/main.c:216: pointIdx = 4;
+      0002F1 75 3A 04         [24]  826 	mov	_pointIdx,#0x04
+      0002F4 75 3B 00         [24]  827 	mov	(_pointIdx + 1),#0x00
+      0002F7                        828 00116$:
+      0002F7 22               [24]  829 	ret
+                                    830 ;------------------------------------------------------------
+                                    831 ;Allocation info for local variables in function 'display'
+                                    832 ;------------------------------------------------------------
+                                    833 ;	src/main.c:220: void display(void)
+                                    834 ;	-----------------------------------------
+                                    835 ;	 function display
+                                    836 ;	-----------------------------------------
+      0002F8                        837 _display:
+                                    838 ;	src/main.c:222: LED7_1 = 1;
+      0002F8 D2 B5            [12]  839 	setb	_P3_5
+                                    840 ;	src/main.c:223: LED7_2 = 1;
+      0002FA D2 B4            [12]  841 	setb	_P3_4
+                                    842 ;	src/main.c:224: LED7_3 = 1;
+      0002FC D2 B3            [12]  843 	setb	_P3_3
+                                    844 ;	src/main.c:225: LED7_4 = 1;
+      0002FE D2 B2            [12]  845 	setb	_P3_2
+                                    846 ;	src/main.c:226: switch (digitIdx) {
+      000300 C3               [12]  847 	clr	c
+      000301 74 04            [12]  848 	mov	a,#0x04
+      000303 95 3C            [12]  849 	subb	a,_digitIdx
+      000305 E4               [12]  850 	clr	a
+      000306 95 3D            [12]  851 	subb	a,(_digitIdx + 1)
+      000308 50 03            [24]  852 	jnc	00142$
+      00030A 02 03 97         [24]  853 	ljmp	00115$
+      00030D                        854 00142$:
+      00030D E5 3C            [12]  855 	mov	a,_digitIdx
+      00030F 75 F0 03         [24]  856 	mov	b,#0x03
+      000312 A4               [48]  857 	mul	ab
+      000313 90 03 17         [24]  858 	mov	dptr,#00143$
+      000316 73               [24]  859 	jmp	@a+dptr
+      000317                        860 00143$:
+      000317 02 03 97         [24]  861 	ljmp	00115$
+      00031A 02 03 26         [24]  862 	ljmp	00101$
+      00031D 02 03 40         [24]  863 	ljmp	00104$
+      000320 02 03 5A         [24]  864 	ljmp	00107$
+      000323 02 03 74         [24]  865 	ljmp	00110$
+                                    866 ;	src/main.c:227: case 1: {
+      000326                        867 00101$:
+                                    868 ;	src/main.c:228: P1 = led7[digitVal_1];
+      000326 E5 32            [12]  869 	mov	a,_digitVal_1
+      000328 24 22            [12]  870 	add	a,#_led7
+      00032A F9               [12]  871 	mov	r1,a
+      00032B 87 90            [24]  872 	mov	_P1,@r1
+                                    873 ;	src/main.c:229: if (pointIdx == 1){
+      00032D 74 01            [12]  874 	mov	a,#0x01
+      00032F B5 3A 06         [24]  875 	cjne	a,_pointIdx,00144$
+      000332 E4               [12]  876 	clr	a
+      000333 B5 3B 02         [24]  877 	cjne	a,(_pointIdx + 1),00144$
+      000336 80 02            [24]  878 	sjmp	00145$
+      000338                        879 00144$:
+      000338 80 02            [24]  880 	sjmp	00103$
+      00033A                        881 00145$:
+                                    882 ;	src/main.c:230: LED7DP = 0;
+      00033A C2 97            [12]  883 	clr	_P1_7
+      00033C                        884 00103$:
+                                    885 ;	src/main.c:232: LED7_1 = 0;
+      00033C C2 B5            [12]  886 	clr	_P3_5
+                                    887 ;	src/main.c:233: break;
+                                    888 ;	src/main.c:235: case 2: {
+      00033E 80 57            [24]  889 	sjmp	00115$
+      000340                        890 00104$:
+                                    891 ;	src/main.c:236: P1 = led7[digitVal_2];
+      000340 E5 34            [12]  892 	mov	a,_digitVal_2
+      000342 24 22            [12]  893 	add	a,#_led7
+      000344 F9               [12]  894 	mov	r1,a
+      000345 87 90            [24]  895 	mov	_P1,@r1
+                                    896 ;	src/main.c:237: if (pointIdx == 2){
+      000347 74 02            [12]  897 	mov	a,#0x02
+      000349 B5 3A 06         [24]  898 	cjne	a,_pointIdx,00146$
+      00034C E4               [12]  899 	clr	a
+      00034D B5 3B 02         [24]  900 	cjne	a,(_pointIdx + 1),00146$
+      000350 80 02            [24]  901 	sjmp	00147$
+      000352                        902 00146$:
+      000352 80 02            [24]  903 	sjmp	00106$
+      000354                        904 00147$:
+                                    905 ;	src/main.c:238: LED7DP = 0;
+      000354 C2 97            [12]  906 	clr	_P1_7
+      000356                        907 00106$:
+                                    908 ;	src/main.c:240: LED7_2 = 0;
+      000356 C2 B4            [12]  909 	clr	_P3_4
+                                    910 ;	src/main.c:241: break;
+                                    911 ;	src/main.c:243: case 3: {
+      000358 80 3D            [24]  912 	sjmp	00115$
+      00035A                        913 00107$:
+                                    914 ;	src/main.c:244: P1 = led7[digitVal_3];
+      00035A E5 36            [12]  915 	mov	a,_digitVal_3
+      00035C 24 22            [12]  916 	add	a,#_led7
+      00035E F9               [12]  917 	mov	r1,a
+      00035F 87 90            [24]  918 	mov	_P1,@r1
+                                    919 ;	src/main.c:245: if (pointIdx == 3){
+      000361 74 03            [12]  920 	mov	a,#0x03
+      000363 B5 3A 06         [24]  921 	cjne	a,_pointIdx,00148$
+      000366 E4               [12]  922 	clr	a
+      000367 B5 3B 02         [24]  923 	cjne	a,(_pointIdx + 1),00148$
+      00036A 80 02            [24]  924 	sjmp	00149$
+      00036C                        925 00148$:
+      00036C 80 02            [24]  926 	sjmp	00109$
+      00036E                        927 00149$:
+                                    928 ;	src/main.c:246: LED7DP = 0;
+      00036E C2 97            [12]  929 	clr	_P1_7
+      000370                        930 00109$:
+                                    931 ;	src/main.c:248: LED7_3 = 0;
+      000370 C2 B3            [12]  932 	clr	_P3_3
+                                    933 ;	src/main.c:249: break;
+                                    934 ;	src/main.c:251: case 4: {
+      000372 80 23            [24]  935 	sjmp	00115$
+      000374                        936 00110$:
+                                    937 ;	src/main.c:252: if (digitVal_4 == 10) break;
+      000374 74 0A            [12]  938 	mov	a,#0x0A
+      000376 B5 38 06         [24]  939 	cjne	a,_digitVal_4,00150$
+      000379 E4               [12]  940 	clr	a
+      00037A B5 39 02         [24]  941 	cjne	a,(_digitVal_4 + 1),00150$
+      00037D 80 18            [24]  942 	sjmp	00115$
+      00037F                        943 00150$:
+                                    944 ;	src/main.c:253: P1 = led7[digitVal_4];
+      00037F E5 38            [12]  945 	mov	a,_digitVal_4
+      000381 24 22            [12]  946 	add	a,#_led7
+      000383 F9               [12]  947 	mov	r1,a
+      000384 87 90            [24]  948 	mov	_P1,@r1
+                                    949 ;	src/main.c:254: if (pointIdx == 4){
+      000386 74 04            [12]  950 	mov	a,#0x04
+      000388 B5 3A 06         [24]  951 	cjne	a,_pointIdx,00151$
+      00038B E4               [12]  952 	clr	a
+      00038C B5 3B 02         [24]  953 	cjne	a,(_pointIdx + 1),00151$
+      00038F 80 02            [24]  954 	sjmp	00152$
+      000391                        955 00151$:
+      000391 80 02            [24]  956 	sjmp	00114$
+      000393                        957 00152$:
+                                    958 ;	src/main.c:255: LED7DP = 0;
+      000393 C2 97            [12]  959 	clr	_P1_7
+      000395                        960 00114$:
+                                    961 ;	src/main.c:257: LED7_4 = 0;	
+      000395 C2 B2            [12]  962 	clr	_P3_2
+                                    963 ;	src/main.c:260: }
+      000397                        964 00115$:
+                                    965 ;	src/main.c:262: if (digitIdx == 4) {
+      000397 74 04            [12]  966 	mov	a,#0x04
+      000399 B5 3C 06         [24]  967 	cjne	a,_digitIdx,00153$
+      00039C E4               [12]  968 	clr	a
+      00039D B5 3D 02         [24]  969 	cjne	a,(_digitIdx + 1),00153$
+      0003A0 80 02            [24]  970 	sjmp	00154$
+      0003A2                        971 00153$:
+      0003A2 80 07            [24]  972 	sjmp	00117$
+      0003A4                        973 00154$:
+                                    974 ;	src/main.c:263: digitIdx = 1;
+      0003A4 75 3C 01         [24]  975 	mov	_digitIdx,#0x01
+      0003A7 75 3D 00         [24]  976 	mov	(_digitIdx + 1),#0x00
+      0003AA 22               [24]  977 	ret
+      0003AB                        978 00117$:
+                                    979 ;	src/main.c:265: digitIdx++;
+      0003AB 05 3C            [12]  980 	inc	_digitIdx
+      0003AD E4               [12]  981 	clr	a
+      0003AE B5 3C 02         [24]  982 	cjne	a,_digitIdx,00155$
+      0003B1 05 3D            [12]  983 	inc	(_digitIdx + 1)
+      0003B3                        984 00155$:
+      0003B3 22               [24]  985 	ret
+                                    986 ;------------------------------------------------------------
+                                    987 ;Allocation info for local variables in function 'delay_ms'
+                                    988 ;------------------------------------------------------------
+                                    989 ;itime                     Allocated to registers r6 r7 
+                                    990 ;i                         Allocated to registers r4 r5 
+                                    991 ;j                         Allocated to registers r2 r3 
+                                    992 ;d                         Allocated to registers 
+                                    993 ;------------------------------------------------------------
+                                    994 ;	src/main.c:269: void delay_ms(unsigned int itime)
+                                    995 ;	-----------------------------------------
+                                    996 ;	 function delay_ms
+                                    997 ;	-----------------------------------------
+      0003B4                        998 _delay_ms:
+      0003B4 AE 82            [24]  999 	mov	r6,dpl
+      0003B6 AF 83            [24] 1000 	mov	r7,dph
+                                   1001 ;	src/main.c:273: for (i=0;i < itime;i++) {
+      0003B8 7C 00            [12] 1002 	mov	r4,#0x00
+      0003BA 7D 00            [12] 1003 	mov	r5,#0x00
+      0003BC                       1004 00107$:
+      0003BC C3               [12] 1005 	clr	c
+      0003BD EC               [12] 1006 	mov	a,r4
+      0003BE 9E               [12] 1007 	subb	a,r6
+      0003BF ED               [12] 1008 	mov	a,r5
+      0003C0 9F               [12] 1009 	subb	a,r7
+      0003C1 50 1B            [24] 1010 	jnc	00109$
+                                   1011 ;	src/main.c:274: for(j=0;j<500;j++) {
+      0003C3 7A F4            [12] 1012 	mov	r2,#0xF4
+      0003C5 7B 01            [12] 1013 	mov	r3,#0x01
+      0003C7                       1014 00105$:
+                                   1015 ;	src/main.c:275: d=0;
+      0003C7 EA               [12] 1016 	mov	a,r2
+      0003C8 24 FF            [12] 1017 	add	a,#0xFF
+      0003CA F8               [12] 1018 	mov	r0,a
+      0003CB EB               [12] 1019 	mov	a,r3
+      0003CC 34 FF            [12] 1020 	addc	a,#0xFF
+      0003CE F9               [12] 1021 	mov	r1,a
+      0003CF 88 02            [24] 1022 	mov	ar2,r0
+      0003D1 89 03            [24] 1023 	mov	ar3,r1
+                                   1024 ;	src/main.c:274: for(j=0;j<500;j++) {
+      0003D3 E8               [12] 1025 	mov	a,r0
+      0003D4 49               [12] 1026 	orl	a,r1
+      0003D5 70 F0            [24] 1027 	jnz	00105$
+                                   1028 ;	src/main.c:273: for (i=0;i < itime;i++) {
+      0003D7 0C               [12] 1029 	inc	r4
+      0003D8 BC 00 E1         [24] 1030 	cjne	r4,#0x00,00107$
+      0003DB 0D               [12] 1031 	inc	r5
+      0003DC 80 DE            [24] 1032 	sjmp	00107$
+      0003DE                       1033 00109$:
+      0003DE 22               [24] 1034 	ret
+                                   1035 ;------------------------------------------------------------
+                                   1036 ;Allocation info for local variables in function 'ISR_ET0'
+                                   1037 ;------------------------------------------------------------
+                                   1038 ;	src/main.c:281: void ISR_ET0 (void) __interrupt 1
+                                   1039 ;	-----------------------------------------
+                                   1040 ;	 function ISR_ET0
+                                   1041 ;	-----------------------------------------
+      0003DF                       1042 _ISR_ET0:
+      0003DF C0 E0            [24] 1043 	push	acc
+      0003E1 C0 D0            [24] 1044 	push	psw
+                                   1045 ;	src/main.c:283: if (COM == 1){
+      0003E3 30 B1 4C         [24] 1046 	jnb	_P3_1,00110$
+                                   1047 ;	src/main.c:284: if (range_mode == 1) {
+      0003E6 30 00 10         [24] 1048 	jnb	_range_mode,00106$
+                                   1049 ;	src/main.c:285: time_mode1++;
+      0003E9 05 2E            [12] 1050 	inc	_time_mode1
+      0003EB E4               [12] 1051 	clr	a
+      0003EC B5 2E 02         [24] 1052 	cjne	a,_time_mode1,00126$
+      0003EF 05 2F            [12] 1053 	inc	(_time_mode1 + 1)
+      0003F1                       1054 00126$:
+                                   1055 ;	src/main.c:286: TH0 = 0xD8;
+      0003F1 75 8C D8         [24] 1056 	mov	_TH0,#0xD8
+                                   1057 ;	src/main.c:287: TL0 = 0xF0;
+      0003F4 75 8A F0         [24] 1058 	mov	_TL0,#0xF0
+      0003F7 80 39            [24] 1059 	sjmp	00110$
+      0003F9                       1060 00106$:
+                                   1061 ;	src/main.c:289: time_mode0++;
+      0003F9 05 30            [12] 1062 	inc	_time_mode0
+      0003FB E4               [12] 1063 	clr	a
+      0003FC B5 30 02         [24] 1064 	cjne	a,_time_mode0,00127$
+      0003FF 05 31            [12] 1065 	inc	(_time_mode0 + 1)
+      000401                       1066 00127$:
+                                   1067 ;	src/main.c:290: if (time_mode0 == 10000) {
+      000401 74 10            [12] 1068 	mov	a,#0x10
+      000403 B5 30 26         [24] 1069 	cjne	a,_time_mode0,00104$
+      000406 74 27            [12] 1070 	mov	a,#0x27
+      000408 B5 31 21         [24] 1071 	cjne	a,(_time_mode0 + 1),00104$
+                                   1072 ;	src/main.c:291: time_mode0 = 0;
+      00040B E4               [12] 1073 	clr	a
+      00040C F5 30            [12] 1074 	mov	_time_mode0,a
+      00040E F5 31            [12] 1075 	mov	(_time_mode0 + 1),a
+                                   1076 ;	src/main.c:292: time_mode1 += 1000; 
+      000410 74 E8            [12] 1077 	mov	a,#0xE8
+      000412 25 2E            [12] 1078 	add	a,_time_mode1
+      000414 F5 2E            [12] 1079 	mov	_time_mode1,a
+      000416 74 03            [12] 1080 	mov	a,#0x03
+      000418 35 2F            [12] 1081 	addc	a,(_time_mode1 + 1)
+      00041A F5 2F            [12] 1082 	mov	(_time_mode1 + 1),a
+                                   1083 ;	src/main.c:293: if (time_mode1 >= 10000) {
+      00041C C3               [12] 1084 	clr	c
+      00041D E5 2E            [12] 1085 	mov	a,_time_mode1
+      00041F 94 10            [12] 1086 	subb	a,#0x10
+      000421 E5 2F            [12] 1087 	mov	a,(_time_mode1 + 1)
+      000423 94 27            [12] 1088 	subb	a,#0x27
+      000425 40 05            [24] 1089 	jc	00104$
+                                   1090 ;	src/main.c:294: time_mode1 = 0;
+      000427 E4               [12] 1091 	clr	a
+      000428 F5 2E            [12] 1092 	mov	_time_mode1,a
+      00042A F5 2F            [12] 1093 	mov	(_time_mode1 + 1),a
+      00042C                       1094 00104$:
+                                   1095 ;	src/main.c:297: TH0 = 0xFC;
+      00042C 75 8C FC         [24] 1096 	mov	_TH0,#0xFC
+                                   1097 ;	src/main.c:298: TL0 = 0x2F;
+      00042F 75 8A 2F         [24] 1098 	mov	_TL0,#0x2F
+      000432                       1099 00110$:
+      000432 D0 D0            [24] 1100 	pop	psw
+      000434 D0 E0            [24] 1101 	pop	acc
+      000436 32               [24] 1102 	reti
+                                   1103 ;	eliminated unneeded mov psw,# (no regs used in bank)
+                                   1104 ;	eliminated unneeded push/pop dpl
+                                   1105 ;	eliminated unneeded push/pop dph
+                                   1106 ;	eliminated unneeded push/pop b
+                                   1107 ;------------------------------------------------------------
+                                   1108 ;Allocation info for local variables in function 'ISR_ET1'
+                                   1109 ;------------------------------------------------------------
+                                   1110 ;	src/main.c:304: void ISR_ET1 (void) __interrupt 3 
+                                   1111 ;	-----------------------------------------
+                                   1112 ;	 function ISR_ET1
+                                   1113 ;	-----------------------------------------
+      000437                       1114 _ISR_ET1:
+      000437 C0 21            [24] 1115 	push	bits
+      000439 C0 E0            [24] 1116 	push	acc
+      00043B C0 F0            [24] 1117 	push	b
+      00043D C0 82            [24] 1118 	push	dpl
+      00043F C0 83            [24] 1119 	push	dph
+      000441 C0 07            [24] 1120 	push	(0+7)
+      000443 C0 06            [24] 1121 	push	(0+6)
+      000445 C0 05            [24] 1122 	push	(0+5)
+      000447 C0 04            [24] 1123 	push	(0+4)
+      000449 C0 03            [24] 1124 	push	(0+3)
+      00044B C0 02            [24] 1125 	push	(0+2)
+      00044D C0 01            [24] 1126 	push	(0+1)
+      00044F C0 00            [24] 1127 	push	(0+0)
+      000451 C0 D0            [24] 1128 	push	psw
+      000453 75 D0 00         [24] 1129 	mov	psw,#0x00
+                                   1130 ;	src/main.c:306: update();
+      000456 12 01 53         [24] 1131 	lcall	_update
+                                   1132 ;	src/main.c:307: display();
+      000459 12 02 F8         [24] 1133 	lcall	_display
+                                   1134 ;	src/main.c:308: TH1 = 0xF8;      //Nap gia tri bat dau 8bit
+      00045C 75 8D F8         [24] 1135 	mov	_TH1,#0xF8
+                                   1136 ;	src/main.c:309: TL1 = 0x30;
+      00045F 75 8B 30         [24] 1137 	mov	_TL1,#0x30
+      000462 D0 D0            [24] 1138 	pop	psw
+      000464 D0 00            [24] 1139 	pop	(0+0)
+      000466 D0 01            [24] 1140 	pop	(0+1)
+      000468 D0 02            [24] 1141 	pop	(0+2)
+      00046A D0 03            [24] 1142 	pop	(0+3)
+      00046C D0 04            [24] 1143 	pop	(0+4)
+      00046E D0 05            [24] 1144 	pop	(0+5)
+      000470 D0 06            [24] 1145 	pop	(0+6)
+      000472 D0 07            [24] 1146 	pop	(0+7)
+      000474 D0 83            [24] 1147 	pop	dph
+      000476 D0 82            [24] 1148 	pop	dpl
+      000478 D0 F0            [24] 1149 	pop	b
+      00047A D0 E0            [24] 1150 	pop	acc
+      00047C D0 21            [24] 1151 	pop	bits
+      00047E 32               [24] 1152 	reti
+                                   1153 	.area CSEG    (CODE)
+                                   1154 	.area CONST   (CODE)
+                                   1155 	.area XINIT   (CODE)
+                                   1156 	.area CABS    (ABS,CODE)

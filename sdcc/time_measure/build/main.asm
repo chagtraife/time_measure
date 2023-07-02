@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 3.5.0 #9253 (Jun 20 2015) (MINGW64)
-; This file was generated Sat Jul 01 23:53:59 2023
+; This file was generated Sun Jul 02 20:33:26 2023
 ;--------------------------------------------------------
 	.module main
 	.optsdcc -mmcs51 --model-small
@@ -108,6 +108,7 @@
 	.globl _DPL
 	.globl _SP
 	.globl _P0
+	.globl _mode_tmp
 	.globl _range_mode
 	.globl _setDisplay_PARM_2
 	.globl _digitIdx
@@ -117,14 +118,12 @@
 	.globl _digitVal_2
 	.globl _digitVal_1
 	.globl _time_mode0
-	.globl _time_1000
-	.globl _time
+	.globl _time_mode1
 	.globl _factor
 	.globl _led7
 	.globl _init_GPIO
-	.globl _init_TC0
 	.globl _init_TC1
-	.globl _setTimer1Value
+	.globl _init_TC0
 	.globl _readRangeSW
 	.globl _readResetButton
 	.globl _resetTime
@@ -265,9 +264,7 @@ _led7::
 	.ds 10
 _factor::
 	.ds 2
-_time::
-	.ds 2
-_time_1000::
+_time_mode1::
 	.ds 2
 _time_mode0::
 	.ds 2
@@ -310,6 +307,8 @@ __start__stack:
 ;--------------------------------------------------------
 	.area BSEG    (BIT)
 _range_mode::
+	.ds 1
+_mode_tmp::
 	.ds 1
 ;--------------------------------------------------------
 ; paged external ram data
@@ -377,23 +376,20 @@ __interrupt_vect:
 ;	src/main.c:42: unsigned int factor = 100;
 	mov	_factor,#0x64
 	mov	(_factor + 1),#0x00
-;	src/main.c:44: unsigned int time = 0;
+;	src/main.c:46: unsigned int time_mode1 = 0;
 	clr	a
-	mov	_time,a
-	mov	(_time + 1),a
-;	src/main.c:45: unsigned int time_1000 = 0;
-	mov	_time_1000,a
-	mov	(_time_1000 + 1),a
-;	src/main.c:46: unsigned int time_mode0 = 0;
+	mov	_time_mode1,a
+	mov	(_time_mode1 + 1),a
+;	src/main.c:47: unsigned int time_mode0 = 0;
 	mov	_time_mode0,a
 	mov	(_time_mode0 + 1),a
-;	src/main.c:47: unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
+;	src/main.c:48: unsigned int digitVal_1, digitVal_2, digitVal_3, digitVal_4 = 0;
 	mov	_digitVal_4,a
 	mov	(_digitVal_4 + 1),a
-;	src/main.c:48: unsigned int pointIdx = 0;
+;	src/main.c:49: unsigned int pointIdx = 0;
 	mov	_pointIdx,a
 	mov	(_pointIdx + 1),a
-;	src/main.c:49: unsigned int digitIdx = 1; // range in 1-4
+;	src/main.c:50: unsigned int digitIdx = 1; // range in 1-4
 	mov	_digitIdx,#0x01
 ;	1-genFromRTrack replaced	mov	(_digitIdx + 1),#0x00
 	mov	(_digitIdx + 1),a
@@ -433,216 +429,267 @@ _main:
 	lcall	_readRangeSW
 ;	src/main.c:71: init_GPIO();
 	lcall	_init_GPIO
-;	src/main.c:72: init_TC0();
-	lcall	_init_TC0
-;	src/main.c:73: init_TC1();
-	lcall	_init_TC1
-;	src/main.c:75: update();
-	lcall	_update
-;	src/main.c:76: while (1)
+;	src/main.c:74: TMOD = 0x11;
+	mov	_TMOD,#0x11
+;	src/main.c:76: ET0 = 1;
+	setb	_ET0
+;	src/main.c:77: if (range_mode == 1) {
+	jnb	_range_mode,00102$
+;	src/main.c:78: TH0 = 0xD8;
+	mov	_TH0,#0xD8
+;	src/main.c:79: TL0 = 0xF0;
+	mov	_TL0,#0xF0
+	sjmp	00103$
 00102$:
-;	src/main.c:78: readRangeSW();
+;	src/main.c:81: TH0 = 0xFC;
+	mov	_TH0,#0xFC
+;	src/main.c:82: TL0 = 0x2F;
+	mov	_TL0,#0x2F
+00103$:
+;	src/main.c:85: PT0 = 1;
+	setb	_PT0
+;	src/main.c:86: TR0 = 1;         //Khoi dong timer1
+	setb	_TR0
+;	src/main.c:87: ET0 = 1;         //Ngat timer1
+	setb	_ET0
+;	src/main.c:89: ET1 = 1;
+	setb	_ET1
+;	src/main.c:90: TH1 = 0xF8;
+	mov	_TH1,#0xF8
+;	src/main.c:91: TL1 = 0x30;
+	mov	_TL1,#0x30
+;	src/main.c:92: TR1 = 1;
+	setb	_TR1
+;	src/main.c:93: ET1 = 1;
+	setb	_ET1
+;	src/main.c:95: EA = 1;          // cho phep ngat toan cuc
+	setb	_EA
+;	src/main.c:98: update();
+	lcall	_update
+;	src/main.c:99: while (1)
+00105$:
+;	src/main.c:101: readRangeSW();
 	lcall	_readRangeSW
-;	src/main.c:79: readResetButton();
+;	src/main.c:102: readResetButton();
 	lcall	_readResetButton
-;	src/main.c:80: delay_ms(20);
-	mov	dptr,#0x0014
+;	src/main.c:103: delay_ms(2);
+	mov	dptr,#0x0002
 	lcall	_delay_ms
-	sjmp	00102$
+	sjmp	00105$
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'init_GPIO'
 ;------------------------------------------------------------
-;	src/main.c:84: void init_GPIO(void)
+;	src/main.c:107: void init_GPIO(void)
 ;	-----------------------------------------
 ;	 function init_GPIO
 ;	-----------------------------------------
 _init_GPIO:
-;	src/main.c:86: RESET = 0;
+;	src/main.c:109: RESET = 0;
 	clr	_P3_7
-;	src/main.c:87: COM = 1;
+;	src/main.c:110: COM = 1;
 	setb	_P3_1
-;	src/main.c:88: RANGE_SW = 1;
+;	src/main.c:111: RANGE_SW = 1;
 	setb	_P3_0
-	ret
-;------------------------------------------------------------
-;Allocation info for local variables in function 'init_TC0'
-;------------------------------------------------------------
-;	src/main.c:92: void init_TC0(void)
-;	-----------------------------------------
-;	 function init_TC0
-;	-----------------------------------------
-_init_TC0:
-;	src/main.c:94: ET0 = 1;         // cho phep ngat timer 0
-	setb	_ET0
-;	src/main.c:95: TMOD = 0x02;    //Sd Timer0 che do 8bit tu nap lai (ngat timer)
-	mov	_TMOD,#0x02
-;	src/main.c:96: TH0 = 0x1F;      //Nap gia tri bat dau 8bit
-	mov	_TH0,#0x1F
-;	src/main.c:97: TL0 = 0x1F;
-	mov	_TL0,#0x1F
-;	src/main.c:98: TR0 = 1;         //Khoi dong timer0
-	setb	_TR0
-;	src/main.c:99: ET0 = 1;         //Ngat timer0
-	setb	_ET0
-;	src/main.c:100: EA = 1;          // cho phep ngat toan cuc
-	setb	_EA
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'init_TC1'
 ;------------------------------------------------------------
-;	src/main.c:104: void init_TC1(void)
+;	src/main.c:115: void init_TC1(void)
 ;	-----------------------------------------
 ;	 function init_TC1
 ;	-----------------------------------------
 _init_TC1:
-;	src/main.c:106: ET1 = 1;         // cho phep ngat timer 1
+;	src/main.c:117: ET1 = 1;         // cho phep ngat timer 0
 	setb	_ET1
-;	src/main.c:107: TMOD |= 0x10;    //Use Timer1 at 16-bit timer mode.
-	orl	_TMOD,#0x10
-;	src/main.c:108: setTimer1Value();
-	lcall	_setTimer1Value
-;	src/main.c:109: TR1 = 1;         //Khoi dong timer1
-	setb	_TR1
-;	src/main.c:110: ET1 = 1;         //Ngat timer1
+;	src/main.c:119: TH1 = 0xF8;      //Nap gia tri bat dau 8bit
+	mov	_TH1,#0xF8
+;	src/main.c:120: TL1 = 0x30;
+	mov	_TL1,#0x30
+;	src/main.c:121: TR1 = 0;         //Khoi dong timer0
+	clr	_TR1
+;	src/main.c:122: ET1 = 1;         //Ngat timer0
 	setb	_ET1
-;	src/main.c:111: EA = 1;          // cho phep ngat toan cuc
+;	src/main.c:123: EA = 1;          // cho phep ngat toan cuc
 	setb	_EA
 	ret
 ;------------------------------------------------------------
-;Allocation info for local variables in function 'setTimer1Value'
+;Allocation info for local variables in function 'init_TC0'
 ;------------------------------------------------------------
-;	src/main.c:114: void setTimer1Value(void)
+;	src/main.c:127: void init_TC0(void)
 ;	-----------------------------------------
-;	 function setTimer1Value
+;	 function init_TC0
 ;	-----------------------------------------
-_setTimer1Value:
-;	src/main.c:117: TH1 = 0x03;
-	mov	_TH1,#0x03
-;	src/main.c:118: TL1 = 0x8E;
-	mov	_TL1,#0x8E
+_init_TC0:
+;	src/main.c:129: ET0 = 1;         // cho phep ngat timer 1
+	setb	_ET0
+;	src/main.c:130: TMOD = 0x11;    //Use Timer1 at 16-bit timer mode.
+	mov	_TMOD,#0x11
+;	src/main.c:131: TH0 = 0xFC;
+	mov	_TH0,#0xFC
+;	src/main.c:132: TL0 = 0x2F;
+	mov	_TL0,#0x2F
+;	src/main.c:133: PT0 = 1;
+	setb	_PT0
+;	src/main.c:134: TR0 = 1;         //Khoi dong timer1
+	setb	_TR0
+;	src/main.c:135: ET0 = 1;         //Ngat timer1
+	setb	_ET0
+;	src/main.c:136: EA = 1;          // cho phep ngat toan cuc
+	setb	_EA
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'readRangeSW'
 ;------------------------------------------------------------
-;	src/main.c:121: void readRangeSW(void)
+;	src/main.c:139: void readRangeSW(void)
 ;	-----------------------------------------
 ;	 function readRangeSW
 ;	-----------------------------------------
 _readRangeSW:
-;	src/main.c:123: if (range_mode != RANGE_SW) {
+;	src/main.c:141: if (range_mode != RANGE_SW) {
 	mov	c,_range_mode
-	jb	_P3_0,00119$
+	jb	_P3_0,00108$
 	cpl	c
-00119$:
-	jc	00108$
-;	src/main.c:124: delay_ms(50);
-	mov	dptr,#0x0032
-	lcall	_delay_ms
-;	src/main.c:125: if (range_mode != RANGE_SW){
-	mov	c,_range_mode
-	jb	_P3_0,00121$
-	cpl	c
-00121$:
-	jc	00108$
-;	src/main.c:126: range_mode = RANGE_SW;
-	mov	c,_P3_0
-;	src/main.c:127: if (range_mode == 1) {
-	mov	_range_mode,c
-	jnc	00102$
-;	src/main.c:128: factor = 100;
-	mov	_factor,#0x64
-	mov	(_factor + 1),#0x00
-	sjmp	00103$
-00102$:
-;	src/main.c:130: factor = 1000;
-	mov	_factor,#0xE8
-	mov	(_factor + 1),#0x03
-00103$:
-;	src/main.c:133: update();
-	ljmp	_update
 00108$:
+	jc	00103$
+;	src/main.c:142: delay_ms(2);
+	mov	dptr,#0x0002
+	lcall	_delay_ms
+;	src/main.c:143: mode_tmp = RANGE_SW;
+	mov	c,_P3_0
+	mov	_mode_tmp,c
+00103$:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'readResetButton'
 ;------------------------------------------------------------
-;	src/main.c:138: void readResetButton()
+;	src/main.c:161: void readResetButton()
 ;	-----------------------------------------
 ;	 function readResetButton
 ;	-----------------------------------------
 _readResetButton:
-;	src/main.c:140: if (RESET == 1) {
-	jnb	_P3_7,00106$
-;	src/main.c:141: delay_ms(20);
-	mov	dptr,#0x0014
+;	src/main.c:163: if (RESET == 1) {
+	jnb	_P3_7,00105$
+;	src/main.c:164: delay_ms(1);
+	mov	dptr,#0x0001
 	lcall	_delay_ms
-;	src/main.c:142: while (RESET == 1){
-00101$:
-	jnb	_P3_7,00103$
-;	src/main.c:143: delay_ms(10);
-	mov	dptr,#0x000A
-	lcall	_delay_ms
-	sjmp	00101$
-00103$:
-;	src/main.c:145: resetTime();
+;	src/main.c:165: if (RESET == 1){
+	jnb	_P3_7,00105$
+;	src/main.c:166: resetTime();
 	ljmp	_resetTime
-00106$:
+00105$:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'resetTime'
 ;------------------------------------------------------------
-;	src/main.c:149: void resetTime()
+;	src/main.c:171: void resetTime()
 ;	-----------------------------------------
 ;	 function resetTime
 ;	-----------------------------------------
 _resetTime:
-;	src/main.c:151: time = 0;
+;	src/main.c:173: time_mode1 = 0;
 	clr	a
-	mov	_time,a
-	mov	(_time + 1),a
-;	src/main.c:152: update();
+	mov	_time_mode1,a
+	mov	(_time_mode1 + 1),a
+;	src/main.c:174: time_mode0 = 0;
+	mov	_time_mode0,a
+	mov	(_time_mode0 + 1),a
+;	src/main.c:175: update();
 	ljmp	_update
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'update'
 ;------------------------------------------------------------
-;	src/main.c:155: void update(void)
+;	src/main.c:178: void update(void)
 ;	-----------------------------------------
 ;	 function update
 ;	-----------------------------------------
 _update:
-;	src/main.c:157: if (factor == 1000){
-	mov	a,#0xE8
-	cjne	a,_factor,00102$
-	mov	a,#0x03
-	cjne	a,(_factor + 1),00102$
-;	src/main.c:158: time_mode0	= (time % 1000) *10 + time_1000;
+;	src/main.c:180: if (range_mode != mode_tmp){
+	mov	c,_range_mode
+	jb	_mode_tmp,00120$
+	cpl	c
+00120$:
+	jnc	00121$
+	ljmp	00105$
+00121$:
+;	src/main.c:181: if (mode_tmp == 1) {
+	jnb	_mode_tmp,00102$
+;	src/main.c:182: factor = 100;
+	mov	_factor,#0x64
+	mov	(_factor + 1),#0x00
+;	src/main.c:183: time_mode1 = ((time_mode1 / 1000) % 10) * 1000 + (time_mode0 / 10) % 1000;
+	mov	__divuint_PARM_2,#0xE8
+	mov	(__divuint_PARM_2 + 1),#0x03
+	mov	dpl,_time_mode1
+	mov	dph,(_time_mode1 + 1)
+	lcall	__divuint
+	mov	__moduint_PARM_2,#0x0A
+	mov	(__moduint_PARM_2 + 1),#0x00
+	lcall	__moduint
+	mov	__mulint_PARM_2,dpl
+	mov	(__mulint_PARM_2 + 1),dph
+	mov	dptr,#0x03E8
+	lcall	__mulint
+	mov	r6,dpl
+	mov	r7,dph
+	mov	__divuint_PARM_2,#0x0A
+	mov	(__divuint_PARM_2 + 1),#0x00
+	mov	dpl,_time_mode0
+	mov	dph,(_time_mode0 + 1)
+	push	ar7
+	push	ar6
+	lcall	__divuint
 	mov	__moduint_PARM_2,#0xE8
 	mov	(__moduint_PARM_2 + 1),#0x03
-	mov	dpl,_time
-	mov	dph,(_time + 1)
+	lcall	__moduint
+	mov	r4,dpl
+	mov	r5,dph
+	pop	ar6
+	pop	ar7
+	mov	a,r4
+	add	a,r6
+	mov	_time_mode1,a
+	mov	a,r5
+	addc	a,r7
+	mov	(_time_mode1 + 1),a
+	sjmp	00103$
+00102$:
+;	src/main.c:185: factor = 1000;
+	mov	_factor,#0xE8
+	mov	(_factor + 1),#0x03
+;	src/main.c:186: time_mode0 = (time_mode1 % 1000) * 10;
+	mov	__moduint_PARM_2,#0xE8
+	mov	(__moduint_PARM_2 + 1),#0x03
+	mov	dpl,_time_mode1
+	mov	dph,(_time_mode1 + 1)
 	lcall	__moduint
 	mov	__mulint_PARM_2,dpl
 	mov	(__mulint_PARM_2 + 1),dph
 	mov	dptr,#0x000A
 	lcall	__mulint
-	mov	a,dpl
-	mov	b,dph
-	add	a,_time_1000
-	mov	_time_mode0,a
-	mov	a,(_time_1000 + 1)
-	addc	a,b
-	mov	(_time_mode0 + 1),a
-;	src/main.c:159: setDisplay(time_mode0, factor);
+	mov	_time_mode0,dpl
+	mov	(_time_mode0 + 1),dph
+00103$:
+;	src/main.c:189: range_mode = mode_tmp;
+	mov	c,_mode_tmp
+	mov	_range_mode,c
+00105$:
+;	src/main.c:191: if (factor == 1000){
+	mov	a,#0xE8
+	cjne	a,_factor,00107$
+	mov	a,#0x03
+	cjne	a,(_factor + 1),00107$
+;	src/main.c:192: setDisplay(time_mode0, factor);
 	mov	_setDisplay_PARM_2,_factor
 	mov	(_setDisplay_PARM_2 + 1),(_factor + 1)
 	mov	dpl,_time_mode0
 	mov	dph,(_time_mode0 + 1)
 	ljmp	_setDisplay
-00102$:
-;	src/main.c:161: setDisplay(time, factor);
+00107$:
+;	src/main.c:194: setDisplay(time_mode1, factor);
 	mov	_setDisplay_PARM_2,_factor
 	mov	(_setDisplay_PARM_2 + 1),(_factor + 1)
-	mov	dpl,_time
-	mov	dph,(_time + 1)
+	mov	dpl,_time_mode1
+	mov	dph,(_time_mode1 + 1)
 	ljmp	_setDisplay
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'setDisplay'
@@ -650,12 +697,12 @@ _update:
 ;f                         Allocated with name '_setDisplay_PARM_2'
 ;number                    Allocated to registers r6 r7 
 ;------------------------------------------------------------
-;	src/main.c:165: void setDisplay(unsigned int number, unsigned int f)
+;	src/main.c:198: void setDisplay(unsigned int number, unsigned int f)
 ;	-----------------------------------------
 ;	 function setDisplay
 ;	-----------------------------------------
 _setDisplay:
-;	src/main.c:167: digitVal_1 = number % 10;
+;	src/main.c:200: digitVal_1 = number % 10;
 	mov	r6,dpl
 	mov	r7,dph
 	mov	__moduint_PARM_2,#0x0A
@@ -667,7 +714,7 @@ _setDisplay:
 	mov	(_digitVal_1 + 1),dph
 	pop	ar6
 	pop	ar7
-;	src/main.c:168: digitVal_2 = (number /10) % 10;
+;	src/main.c:201: digitVal_2 = (number /10) % 10;
 	mov	__divuint_PARM_2,#0x0A
 	mov	(__divuint_PARM_2 + 1),#0x00
 	mov	dpl,r6
@@ -682,7 +729,7 @@ _setDisplay:
 	mov	(_digitVal_2 + 1),dph
 	pop	ar6
 	pop	ar7
-;	src/main.c:169: digitVal_3 = (number /100) % 10;
+;	src/main.c:202: digitVal_3 = (number /100) % 10;
 	mov	__divuint_PARM_2,#0x64
 	mov	(__divuint_PARM_2 + 1),#0x00
 	mov	dpl,r6
@@ -697,7 +744,25 @@ _setDisplay:
 	mov	(_digitVal_3 + 1),dph
 	pop	ar6
 	pop	ar7
-;	src/main.c:170: digitVal_4 = (number /1000) % 10;
+;	src/main.c:203: if ((number < 1000) && (f !=1000)){
+	clr	c
+	mov	a,r6
+	subb	a,#0xE8
+	mov	a,r7
+	subb	a,#0x03
+	jnc	00102$
+	mov	a,#0xE8
+	cjne	a,_setDisplay_PARM_2,00137$
+	mov	a,#0x03
+	cjne	a,(_setDisplay_PARM_2 + 1),00137$
+	sjmp	00102$
+00137$:
+;	src/main.c:204: digitVal_4 = 10; // mean do not display
+	mov	_digitVal_4,#0x0A
+	mov	(_digitVal_4 + 1),#0x00
+	sjmp	00103$
+00102$:
+;	src/main.c:206: digitVal_4 = (number /1000) % 10;
 	mov	__divuint_PARM_2,#0xE8
 	mov	(__divuint_PARM_2 + 1),#0x03
 	mov	dpl,r6
@@ -708,207 +773,215 @@ _setDisplay:
 	lcall	__moduint
 	mov	_digitVal_4,dpl
 	mov	(_digitVal_4 + 1),dph
-;	src/main.c:172: if (f == 1){
+00103$:
+;	src/main.c:209: if (f == 1){
 	mov	a,#0x01
-	cjne	a,_setDisplay_PARM_2,00126$
+	cjne	a,_setDisplay_PARM_2,00138$
 	clr	a
-	cjne	a,(_setDisplay_PARM_2 + 1),00126$
-	sjmp	00127$
-00126$:
-	sjmp	00110$
-00127$:
-;	src/main.c:173: pointIdx = 0;
+	cjne	a,(_setDisplay_PARM_2 + 1),00138$
+	sjmp	00139$
+00138$:
+	sjmp	00114$
+00139$:
+;	src/main.c:210: pointIdx = 0;
 	clr	a
 	mov	_pointIdx,a
 	mov	(_pointIdx + 1),a
 	ret
-00110$:
-;	src/main.c:174: } else if (f == 10) {
+00114$:
+;	src/main.c:211: } else if (f == 10) {
 	mov	a,#0x0A
-	cjne	a,_setDisplay_PARM_2,00128$
+	cjne	a,_setDisplay_PARM_2,00140$
 	clr	a
-	cjne	a,(_setDisplay_PARM_2 + 1),00128$
-	sjmp	00129$
-00128$:
-	sjmp	00107$
-00129$:
-;	src/main.c:175: pointIdx = 2;
+	cjne	a,(_setDisplay_PARM_2 + 1),00140$
+	sjmp	00141$
+00140$:
+	sjmp	00111$
+00141$:
+;	src/main.c:212: pointIdx = 2;
 	mov	_pointIdx,#0x02
 	mov	(_pointIdx + 1),#0x00
 	ret
-00107$:
-;	src/main.c:176: } else if (f == 100) {
+00111$:
+;	src/main.c:213: } else if (f == 100) {
 	mov	a,#0x64
-	cjne	a,_setDisplay_PARM_2,00130$
+	cjne	a,_setDisplay_PARM_2,00142$
 	clr	a
-	cjne	a,(_setDisplay_PARM_2 + 1),00130$
-	sjmp	00131$
-00130$:
-	sjmp	00104$
-00131$:
-;	src/main.c:177: pointIdx = 3;
+	cjne	a,(_setDisplay_PARM_2 + 1),00142$
+	sjmp	00143$
+00142$:
+	sjmp	00108$
+00143$:
+;	src/main.c:214: pointIdx = 3;
 	mov	_pointIdx,#0x03
 	mov	(_pointIdx + 1),#0x00
 	ret
-00104$:
-;	src/main.c:178: } else if (f == 1000) {
+00108$:
+;	src/main.c:215: } else if (f == 1000) {
 	mov	a,#0xE8
-	cjne	a,_setDisplay_PARM_2,00112$
+	cjne	a,_setDisplay_PARM_2,00116$
 	mov	a,#0x03
-	cjne	a,(_setDisplay_PARM_2 + 1),00112$
-;	src/main.c:179: pointIdx = 4;
+	cjne	a,(_setDisplay_PARM_2 + 1),00116$
+;	src/main.c:216: pointIdx = 4;
 	mov	_pointIdx,#0x04
 	mov	(_pointIdx + 1),#0x00
-00112$:
+00116$:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'display'
 ;------------------------------------------------------------
-;	src/main.c:183: void display(void)
+;	src/main.c:220: void display(void)
 ;	-----------------------------------------
 ;	 function display
 ;	-----------------------------------------
 _display:
-;	src/main.c:185: LED7_1 = 1;
+;	src/main.c:222: LED7_1 = 1;
 	setb	_P3_5
-;	src/main.c:186: LED7_2 = 1;
+;	src/main.c:223: LED7_2 = 1;
 	setb	_P3_4
-;	src/main.c:187: LED7_3 = 1;
+;	src/main.c:224: LED7_3 = 1;
 	setb	_P3_3
-;	src/main.c:188: LED7_4 = 1;
+;	src/main.c:225: LED7_4 = 1;
 	setb	_P3_2
-;	src/main.c:189: switch (digitIdx) {
+;	src/main.c:226: switch (digitIdx) {
 	clr	c
 	mov	a,#0x04
 	subb	a,_digitIdx
 	clr	a
 	subb	a,(_digitIdx + 1)
-	jnc	00137$
-	ljmp	00113$
-00137$:
+	jnc	00142$
+	ljmp	00115$
+00142$:
 	mov	a,_digitIdx
 	mov	b,#0x03
 	mul	ab
-	mov	dptr,#00138$
+	mov	dptr,#00143$
 	jmp	@a+dptr
-00138$:
-	ljmp	00113$
+00143$:
+	ljmp	00115$
 	ljmp	00101$
 	ljmp	00104$
 	ljmp	00107$
 	ljmp	00110$
-;	src/main.c:190: case 1: {
+;	src/main.c:227: case 1: {
 00101$:
-;	src/main.c:191: P1 = led7[digitVal_1];
+;	src/main.c:228: P1 = led7[digitVal_1];
 	mov	a,_digitVal_1
 	add	a,#_led7
 	mov	r1,a
 	mov	_P1,@r1
-;	src/main.c:192: if (pointIdx == 1){
+;	src/main.c:229: if (pointIdx == 1){
 	mov	a,#0x01
-	cjne	a,_pointIdx,00139$
+	cjne	a,_pointIdx,00144$
 	clr	a
-	cjne	a,(_pointIdx + 1),00139$
-	sjmp	00140$
-00139$:
+	cjne	a,(_pointIdx + 1),00144$
+	sjmp	00145$
+00144$:
 	sjmp	00103$
-00140$:
-;	src/main.c:193: LED7DP = 0;
+00145$:
+;	src/main.c:230: LED7DP = 0;
 	clr	_P1_7
 00103$:
-;	src/main.c:195: LED7_1 = 0;
+;	src/main.c:232: LED7_1 = 0;
 	clr	_P3_5
-;	src/main.c:196: break;
-;	src/main.c:198: case 2: {
-	sjmp	00113$
+;	src/main.c:233: break;
+;	src/main.c:235: case 2: {
+	sjmp	00115$
 00104$:
-;	src/main.c:199: P1 = led7[digitVal_2];
+;	src/main.c:236: P1 = led7[digitVal_2];
 	mov	a,_digitVal_2
 	add	a,#_led7
 	mov	r1,a
 	mov	_P1,@r1
-;	src/main.c:200: if (pointIdx == 2){
+;	src/main.c:237: if (pointIdx == 2){
 	mov	a,#0x02
-	cjne	a,_pointIdx,00141$
+	cjne	a,_pointIdx,00146$
 	clr	a
-	cjne	a,(_pointIdx + 1),00141$
-	sjmp	00142$
-00141$:
+	cjne	a,(_pointIdx + 1),00146$
+	sjmp	00147$
+00146$:
 	sjmp	00106$
-00142$:
-;	src/main.c:201: LED7DP = 0;
+00147$:
+;	src/main.c:238: LED7DP = 0;
 	clr	_P1_7
 00106$:
-;	src/main.c:203: LED7_2 = 0;
+;	src/main.c:240: LED7_2 = 0;
 	clr	_P3_4
-;	src/main.c:204: break;
-;	src/main.c:206: case 3: {
-	sjmp	00113$
+;	src/main.c:241: break;
+;	src/main.c:243: case 3: {
+	sjmp	00115$
 00107$:
-;	src/main.c:207: P1 = led7[digitVal_3];
+;	src/main.c:244: P1 = led7[digitVal_3];
 	mov	a,_digitVal_3
 	add	a,#_led7
 	mov	r1,a
 	mov	_P1,@r1
-;	src/main.c:208: if (pointIdx == 3){
+;	src/main.c:245: if (pointIdx == 3){
 	mov	a,#0x03
-	cjne	a,_pointIdx,00143$
+	cjne	a,_pointIdx,00148$
 	clr	a
-	cjne	a,(_pointIdx + 1),00143$
-	sjmp	00144$
-00143$:
+	cjne	a,(_pointIdx + 1),00148$
+	sjmp	00149$
+00148$:
 	sjmp	00109$
-00144$:
-;	src/main.c:209: LED7DP = 0;
+00149$:
+;	src/main.c:246: LED7DP = 0;
 	clr	_P1_7
 00109$:
-;	src/main.c:211: LED7_3 = 0;
+;	src/main.c:248: LED7_3 = 0;
 	clr	_P3_3
-;	src/main.c:212: break;
-;	src/main.c:214: case 4: {
-	sjmp	00113$
+;	src/main.c:249: break;
+;	src/main.c:251: case 4: {
+	sjmp	00115$
 00110$:
-;	src/main.c:215: P1 = led7[digitVal_4];
+;	src/main.c:252: if (digitVal_4 == 10) break;
+	mov	a,#0x0A
+	cjne	a,_digitVal_4,00150$
+	clr	a
+	cjne	a,(_digitVal_4 + 1),00150$
+	sjmp	00115$
+00150$:
+;	src/main.c:253: P1 = led7[digitVal_4];
 	mov	a,_digitVal_4
 	add	a,#_led7
 	mov	r1,a
 	mov	_P1,@r1
-;	src/main.c:216: if (pointIdx == 4){
+;	src/main.c:254: if (pointIdx == 4){
 	mov	a,#0x04
-	cjne	a,_pointIdx,00145$
+	cjne	a,_pointIdx,00151$
 	clr	a
-	cjne	a,(_pointIdx + 1),00145$
-	sjmp	00146$
-00145$:
-	sjmp	00112$
-00146$:
-;	src/main.c:217: LED7DP = 0;
+	cjne	a,(_pointIdx + 1),00151$
+	sjmp	00152$
+00151$:
+	sjmp	00114$
+00152$:
+;	src/main.c:255: LED7DP = 0;
 	clr	_P1_7
-00112$:
-;	src/main.c:219: LED7_4 = 0;	
+00114$:
+;	src/main.c:257: LED7_4 = 0;	
 	clr	_P3_2
-;	src/main.c:222: }
-00113$:
-;	src/main.c:224: if (digitIdx == 4) {
+;	src/main.c:260: }
+00115$:
+;	src/main.c:262: if (digitIdx == 4) {
 	mov	a,#0x04
-	cjne	a,_digitIdx,00147$
+	cjne	a,_digitIdx,00153$
 	clr	a
-	cjne	a,(_digitIdx + 1),00147$
-	sjmp	00148$
-00147$:
-	sjmp	00115$
-00148$:
-;	src/main.c:225: digitIdx = 1;
+	cjne	a,(_digitIdx + 1),00153$
+	sjmp	00154$
+00153$:
+	sjmp	00117$
+00154$:
+;	src/main.c:263: digitIdx = 1;
 	mov	_digitIdx,#0x01
 	mov	(_digitIdx + 1),#0x00
 	ret
-00115$:
-;	src/main.c:227: digitIdx++;
+00117$:
+;	src/main.c:265: digitIdx++;
 	inc	_digitIdx
 	clr	a
-	cjne	a,_digitIdx,00149$
+	cjne	a,_digitIdx,00155$
 	inc	(_digitIdx + 1)
-00149$:
+00155$:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'delay_ms'
@@ -918,14 +991,14 @@ _display:
 ;j                         Allocated to registers r2 r3 
 ;d                         Allocated to registers 
 ;------------------------------------------------------------
-;	src/main.c:231: void delay_ms(unsigned int itime)
+;	src/main.c:269: void delay_ms(unsigned int itime)
 ;	-----------------------------------------
 ;	 function delay_ms
 ;	-----------------------------------------
 _delay_ms:
 	mov	r6,dpl
 	mov	r7,dph
-;	src/main.c:235: for (i=0;i < itime;i++) {
+;	src/main.c:273: for (i=0;i < itime;i++) {
 	mov	r4,#0x00
 	mov	r5,#0x00
 00107$:
@@ -935,11 +1008,11 @@ _delay_ms:
 	mov	a,r5
 	subb	a,r7
 	jnc	00109$
-;	src/main.c:236: for(j=0;j<1275;j++) {
-	mov	r2,#0xFB
-	mov	r3,#0x04
+;	src/main.c:274: for(j=0;j<500;j++) {
+	mov	r2,#0xF4
+	mov	r3,#0x01
 00105$:
-;	src/main.c:237: d=0;
+;	src/main.c:275: d=0;
 	mov	a,r2
 	add	a,#0xFF
 	mov	r0,a
@@ -948,11 +1021,11 @@ _delay_ms:
 	mov	r1,a
 	mov	ar2,r0
 	mov	ar3,r1
-;	src/main.c:236: for(j=0;j<1275;j++) {
+;	src/main.c:274: for(j=0;j<500;j++) {
 	mov	a,r0
 	orl	a,r1
 	jnz	00105$
-;	src/main.c:235: for (i=0;i < itime;i++) {
+;	src/main.c:273: for (i=0;i < itime;i++) {
 	inc	r4
 	cjne	r4,#0x00,00107$
 	inc	r5
@@ -962,47 +1035,79 @@ _delay_ms:
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'ISR_ET0'
 ;------------------------------------------------------------
-;	src/main.c:243: void ISR_ET0 (void) __interrupt 1 
+;	src/main.c:281: void ISR_ET0 (void) __interrupt 1
 ;	-----------------------------------------
 ;	 function ISR_ET0
 ;	-----------------------------------------
 _ISR_ET0:
-	push	bits
 	push	acc
-	push	b
-	push	dpl
-	push	dph
-	push	(0+7)
-	push	(0+6)
-	push	(0+5)
-	push	(0+4)
-	push	(0+3)
-	push	(0+2)
-	push	(0+1)
-	push	(0+0)
 	push	psw
-	mov	psw,#0x00
-;	src/main.c:245: display();
-	lcall	_display
+;	src/main.c:283: if (COM == 1){
+	jnb	_P3_1,00110$
+;	src/main.c:284: if (range_mode == 1) {
+	jnb	_range_mode,00106$
+;	src/main.c:285: time_mode1++;
+	inc	_time_mode1
+	clr	a
+	cjne	a,_time_mode1,00126$
+	inc	(_time_mode1 + 1)
+00126$:
+;	src/main.c:286: TH0 = 0xD8;
+	mov	_TH0,#0xD8
+;	src/main.c:287: TL0 = 0xF0;
+	mov	_TL0,#0xF0
+	sjmp	00110$
+00106$:
+;	src/main.c:289: time_mode0++;
+	inc	_time_mode0
+	clr	a
+	cjne	a,_time_mode0,00127$
+	inc	(_time_mode0 + 1)
+00127$:
+;	src/main.c:290: if (time_mode0 == 10000) {
+	mov	a,#0x10
+	cjne	a,_time_mode0,00104$
+	mov	a,#0x27
+	cjne	a,(_time_mode0 + 1),00104$
+;	src/main.c:291: time_mode0 = 0;
+	clr	a
+	mov	_time_mode0,a
+	mov	(_time_mode0 + 1),a
+;	src/main.c:292: time_mode1 += 1000; 
+	mov	a,#0xE8
+	add	a,_time_mode1
+	mov	_time_mode1,a
+	mov	a,#0x03
+	addc	a,(_time_mode1 + 1)
+	mov	(_time_mode1 + 1),a
+;	src/main.c:293: if (time_mode1 >= 10000) {
+	clr	c
+	mov	a,_time_mode1
+	subb	a,#0x10
+	mov	a,(_time_mode1 + 1)
+	subb	a,#0x27
+	jc	00104$
+;	src/main.c:294: time_mode1 = 0;
+	clr	a
+	mov	_time_mode1,a
+	mov	(_time_mode1 + 1),a
+00104$:
+;	src/main.c:297: TH0 = 0xFC;
+	mov	_TH0,#0xFC
+;	src/main.c:298: TL0 = 0x2F;
+	mov	_TL0,#0x2F
+00110$:
 	pop	psw
-	pop	(0+0)
-	pop	(0+1)
-	pop	(0+2)
-	pop	(0+3)
-	pop	(0+4)
-	pop	(0+5)
-	pop	(0+6)
-	pop	(0+7)
-	pop	dph
-	pop	dpl
-	pop	b
 	pop	acc
-	pop	bits
 	reti
+;	eliminated unneeded mov psw,# (no regs used in bank)
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'ISR_ET1'
 ;------------------------------------------------------------
-;	src/main.c:249: void ISR_ET1 (void) __interrupt 3
+;	src/main.c:304: void ISR_ET1 (void) __interrupt 3 
 ;	-----------------------------------------
 ;	 function ISR_ET1
 ;	-----------------------------------------
@@ -1022,39 +1127,14 @@ _ISR_ET1:
 	push	(0+0)
 	push	psw
 	mov	psw,#0x00
-;	src/main.c:251: if (COM == 1){
-	jnb	_P3_1,00104$
-;	src/main.c:252: time_1000++;
-	inc	_time_1000
-	clr	a
-	cjne	a,_time_1000,00114$
-	inc	(_time_1000 + 1)
-00114$:
-;	src/main.c:253: if (time_1000 == 10) {
-	mov	a,#0x0A
-	cjne	a,_time_1000,00115$
-	clr	a
-	cjne	a,(_time_1000 + 1),00115$
-	sjmp	00116$
-00115$:
-	sjmp	00102$
-00116$:
-;	src/main.c:254: time_1000 = 0;
-	clr	a
-	mov	_time_1000,a
-	mov	(_time_1000 + 1),a
-;	src/main.c:255: time++;	
-	inc	_time
-;	genFromRTrack removed	clr	a
-	cjne	a,_time,00117$
-	inc	(_time + 1)
-00117$:
-00102$:
-;	src/main.c:257: update();
+;	src/main.c:306: update();
 	lcall	_update
-00104$:
-;	src/main.c:259: setTimer1Value();
-	lcall	_setTimer1Value
+;	src/main.c:307: display();
+	lcall	_display
+;	src/main.c:308: TH1 = 0xF8;      //Nap gia tri bat dau 8bit
+	mov	_TH1,#0xF8
+;	src/main.c:309: TL1 = 0x30;
+	mov	_TL1,#0x30
 	pop	psw
 	pop	(0+0)
 	pop	(0+1)
